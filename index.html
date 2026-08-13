@@ -19,7 +19,7 @@
       <h2>Mes Séances</h2>
       
       <div id="saved-routines-list" class="routines-list">
-        <!-- Les séances personnalisées s'afficheront ici -->
+        <!-- Les séances personnalisées s'afficheront ici avec leur durée -->
       </div>
 
       <button id="btn-create-routine" class="btn-primary">Créer une nouvelle séance</button>
@@ -38,6 +38,11 @@
       <div class="form-group">
         <label for="routine-rounds">Nombre de tours :</label>
         <input type="number" id="routine-rounds" value="3" min="1" max="10">
+      </div>
+
+      <!-- Affichage de la durée estimée en direct -->
+      <div id="estimated-time-box" class="estimated-time-box">
+        ⏱️ Durée estimée : <span id="estimated-time-display">0 min</span>
       </div>
 
       <h3>Sélectionne tes exercices :</h3>
