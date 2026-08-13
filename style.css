@@ -64,7 +64,6 @@ button {
   background-color: #444;
 }
 
-/* Bouton abandon corrigé pour ne pas dépasser de l'écran */
 .btn-abandon {
   background-color: #333;
   color: #ff4d4d;
@@ -81,7 +80,7 @@ button {
   background-color: #444;
 }
 
-/* --- ÉCRAN D'ENTRAÎNEMENT & IMAGES AGRANDIES --- */
+/* --- ÉCRAN D'ENTRAÎNEMENT & IMAGES --- */
 .workout-header {
   display: flex;
   justify-content: space-between;
@@ -167,16 +166,81 @@ button {
   width: auto;
 }
 
+/* Gestion de l'ordre des exercices (v1.3) */
+.ordered-exercises-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 35vh;
+  overflow-y: auto;
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.ordered-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #222;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+
+.ordered-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ordered-index {
+  color: #e50914;
+  font-weight: bold;
+  min-width: 20px;
+}
+
+.ordered-name {
+  font-weight: bold;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.ordered-btns {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-reorder {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-reorder:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-reorder:hover:not(:disabled) {
+  background: #e50914;
+}
+
 /* Tableau de sélection visuel (fiches intégrées) */
 .exercises-checkbox-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 15px 0;
-  max-height: 50vh;
+  gap: 10px;
+  max-height: 35vh;
   overflow-y: auto;
   background: #1a1a1a;
-  padding: 15px;
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid #333;
 }
@@ -184,11 +248,8 @@ button {
 .creator-exercise-item {
   background: #222;
   border: 1px solid #333;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  border-radius: 6px;
+  padding: 8px 12px;
 }
 
 .creator-checkbox-label {
@@ -199,45 +260,20 @@ button {
 }
 
 .creator-checkbox-label input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
   accent-color: #e50914;
 }
 
 .creator-exercise-name {
   font-weight: bold;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   color: #fff;
 }
 
-.creator-exercise-preview {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #161616;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.creator-exercise-preview img {
-  width: 70px;
-  height: 70px;
-  object-fit: contain;
-  background: #121212;
-  border-radius: 4px;
-  padding: 4px;
-  flex-shrink: 0;
-}
-
-.creator-exercise-preview p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #aaa;
-}
-
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   text-align: left;
 }
 
@@ -264,7 +300,39 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 10px;
+}
+
+/* --- ÉCRAN DE BILAN / FIN DE SÉANCE (v1.3) --- */
+.completion-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.completion-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+  background: #222;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  text-align: left;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  color: #ccc;
+}
+
+.stat-item strong {
+  color: #e50914;
 }
 
 /* --- BIBLIOTHÈQUE DES FICHES D'EXERCICES --- */
@@ -294,12 +362,12 @@ button {
   background: #1a1a1a;
   border: 1px solid #e50914;
   color: #fff;
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
   text-align: center;
   font-weight: bold;
-  font-size: 1.05rem;
-  margin-bottom: 10px;
+  font-size: 1rem;
+  margin-bottom: 5px;
 }
 
 .estimated-time-box span {
