@@ -1,3 +1,33 @@
+// Moteur Audio Web API (Aucun fichier mp3 requis !)
+const AudioEngine = {
+    ctx: null,
+    init: () => {
+        if (!AudioEngine.ctx) {
+            AudioEngine.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (AudioEngine.ctx.state === 'suspended') {
+            AudioEngine.ctx.resume();
+        }
+    },
+    playTone: (freq, type, duration, vol=0.1) => {
+        if (!AudioEngine.ctx) return;
+        try {
+            const osc = AudioEngine.ctx.createOscillator();
+            const gain = AudioEngine.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, AudioEngine.ctx.currentTime);
+            gain.gain.setValueAtTime(vol, AudioEngine.ctx.currentTime);
+            osc.connect(gain);
+            gain.connect(AudioEngine.ctx.destination);
+            osc.start();
+            osc.stop(AudioEngine.ctx.currentTime + duration);
+        } catch(e) {}
+    },
+    beepStart: () => AudioEngine.playTone(880, 'sine', 0.4, 0.2), // Go! (Aigu)
+    beepEnd: () => AudioEngine.playTone(440, 'square', 0.4, 0.1), // Repos (Grave)
+    beepTick: () => AudioEngine.playTone(600, 'sine', 0.1, 0.1) // Compte à rebours 3-2-1
+};
+
 const WorkoutEngine = {
     program: [],
     currentExIndex: 0,
@@ -6,7 +36,7 @@ const WorkoutEngine = {
     timer: null,
     timeLeft: 0,
     isPaused: false,
-    phase: 'prep', // prep, work, rest, round_rest
+    phase: 'prep',
     startTime: null,
 
     init: (programIds) => {
@@ -21,14 +51,23 @@ const WorkoutEngine = {
         WorkoutEngine.phase = phase;
         WorkoutEngine.timeLeft = duration;
         WorkoutEngine.updateUI();
+
+        // Réveil de l'audio si nécessaire
+        if (AudioEngine.ctx && AudioEngine.ctx.state === 'suspended') AudioEngine.ctx.resume();
+
+        // Signaux sonores
+        if (phase === 'work') {
+            AudioEngine.beepStart();
+        } else if (phase === 'rest' || phase === 'round_rest') {
+            AudioEngine.beepEnd();
+        }
+
         if (phase === 'work' && WorkoutEngine.program[WorkoutEngine.currentExIndex].type === 'reps') {
-            // Mode manuel pour les répétitions
             document.getElementById('workout-value').innerText = WorkoutEngine.program[WorkoutEngine.currentExIndex].value;
             document.getElementById('workout-unit').innerText = 'Répétitions';
             document.getElementById('btn-workout-action').innerText = 'VALIDER';
             document.getElementById('btn-workout-action').style.display = 'block';
         } else {
-            // Mode chrono
             document.getElementById('btn-workout-action').style.display = (phase === 'prep' || phase.includes('rest')) ? 'block' : 'none';
             document.getElementById('btn-workout-action').innerText = 'PASSER';
             WorkoutEngine.startTimer();
@@ -41,6 +80,12 @@ const WorkoutEngine = {
             if (!WorkoutEngine.isPaused) {
                 WorkoutEngine.timeLeft--;
                 WorkoutEngine.updateUI();
+                
+                // Bips des 3 dernières secondes
+                if (WorkoutEngine.timeLeft > 0 && WorkoutEngine.timeLeft <= 3) {
+                    AudioEngine.beepTick();
+                }
+
                 if (WorkoutEngine.timeLeft <= 0) {
                     clearInterval(WorkoutEngine.timer);
                     WorkoutEngine.nextStep();
@@ -79,6 +124,7 @@ const WorkoutEngine = {
     finish: () => {
         const durationMin = Math.round((Date.now() - WorkoutEngine.startTime) / 60000);
         Storage.saveSession(durationMin, WorkoutEngine.program.length * WorkoutEngine.totalRounds);
+        AudioEngine.beepStart(); // Bip de victoire
         alert('🎉 Séance terminée, Ninja !');
         App.showView('view-home');
         App.renderHistory();
