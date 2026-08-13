@@ -34,7 +34,14 @@ let currentIndex = 0;
 let timerInterval = null;
 let timeLeft = 30;
 let isPaused = false;
-let workflowState = 'initial_setup';
+let workflowState = 'initial_setup'; // 'initial_setup', 'exercise', 'mise_en_place'
+
+// État temporaire du créateur de séance (v1.3 - ordre personnalisable)
+let creatorSelectedIds = [];
+
+// Wake Lock API & Audio Context global
+let wakeLock = null;
+let audioCtx = null;
 
 // --- SÉLECTION DES ÉLÉMENTS HTML ---
 const screens = {
@@ -56,10 +63,22 @@ function calculateDurationText(rounds, exerciseCount) {
   return `${minutes} min ${seconds}s`;
 }
 
-// --- FONCTION BIP SONORE ---
+// --- INITIALISATION AUDIO ROBUSTE (iOS Safari) ---
+function initAudio() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  } catch (e) {}
+}
+
 function playBeep() {
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    initAudio();
+    if (!audioCtx) return;
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     oscillator.type = 'sine';
@@ -71,6 +90,30 @@ function playBeep() {
     oscillator.stop(audioCtx.currentTime + 0.25);
   } catch (e) {}
 }
+
+// --- WAKE LOCK API ---
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  } catch (err) {}
+}
+
+async function releaseWakeLock() {
+  try {
+    if (wakeLock) {
+      await wakeLock.release();
+      wakeLock = null;
+    }
+  } catch (err) {}
+}
+
+document.addEventListener('visibilitychange', async () => {
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    await requestWakeLock();
+  }
+});
 
 // --- INITIALISATION AU CHARGEMENT ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -127,46 +170,101 @@ function initEventListeners() {
   document.getElementById('btn-pause').addEventListener('click', togglePause);
   document.getElementById('btn-next').addEventListener('click', nextStep);
   document.getElementById('btn-abandon').addEventListener('click', abandonWorkout);
-  document.getElementById('btn-home').addEventListener('click', () => showScreen('selector'));
+  document.getElementById('btn-home').addEventListener('click', () => {
+    releaseWakeLock();
+    showScreen('selector');
+  });
 }
 
-// --- OUVRIR LE CRÉATEUR DE SÉANCE ---
+// --- OUVRIR LE CRÉATEUR DE SÉANCE (v1.3) ---
 function openCreator() {
   document.getElementById('routine-name').value = '';
   document.getElementById('routine-rounds').value = 3;
   
-  const container = document.getElementById('exercise-checkboxes-list');
-  container.innerHTML = '';
+  // Par défaut, tous les exercices sont sélectionnés au départ
+  creatorSelectedIds = ALL_EXERCISES.map(ex => ex.id);
+  renderCreatorForm();
 
-  ALL_EXERCISES.forEach(ex => {
-    const item = document.createElement('div');
-    item.className = 'creator-exercise-item';
-    item.innerHTML = `
-      <label class="creator-checkbox-label">
-        <input type="checkbox" name="exercise-choice" value="${ex.id}" checked class="exercise-cb">
-        <span class="creator-exercise-name">${ex.name}</span>
-      </label>
-      <div class="creator-exercise-preview">
-        <img src="${ex.img}" alt="${ex.name}">
-        <p>${ex.desc}</p>
-      </div>
-    `;
-    container.appendChild(item);
-  });
-
-  updateLiveEstimatedTime();
-
-  container.onchange = updateLiveEstimatedTime;
   document.getElementById('routine-rounds').oninput = updateLiveEstimatedTime;
 
   showScreen('creator');
 }
 
+function renderCreatorForm() {
+  // Rendu de la liste ordonnée avec flèches
+  const orderedContainer = document.getElementById('ordered-exercises-list');
+  orderedContainer.innerHTML = '';
+
+  if (creatorSelectedIds.length === 0) {
+    orderedContainer.innerHTML = '<p style="color: #888; font-size: 0.85rem; text-align: center; margin: 5px 0;">Aucun exercice sélectionné</p>';
+  } else {
+    creatorSelectedIds.forEach((id, index) => {
+      const ex = ALL_EXERCISES.find(e => e.id === id);
+      if (!ex) return;
+
+      const row = document.createElement('div');
+      row.className = 'ordered-item';
+      row.innerHTML = `
+        <div class="ordered-item-left">
+          <span class="ordered-index">${index + 1}.</span>
+          <span class="ordered-name">${ex.name}</span>
+        </div>
+        <div class="ordered-btns">
+          <button type="button" class="btn-reorder" onclick="moveExercise(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+          <button type="button" class="btn-reorder" onclick="moveExercise(${index}, 1)" ${index === creatorSelectedIds.length - 1 ? 'disabled' : ''}>↓</button>
+        </div>
+      `;
+      orderedContainer.appendChild(row);
+    });
+  }
+
+  // Rendu des cases à cocher pour filtrer/sélectionner
+  const checkboxesContainer = document.getElementById('exercise-checkboxes-list');
+  checkboxesContainer.innerHTML = '';
+
+  ALL_EXERCISES.forEach(ex => {
+    const isChecked = creatorSelectedIds.includes(ex.id);
+    const item = document.createElement('div');
+    item.className = 'creator-exercise-item';
+    item.innerHTML = `
+      <label class="creator-checkbox-label">
+        <input type="checkbox" value="${ex.id}" ${isChecked ? 'checked' : ''} class="exercise-cb">
+        <span class="creator-exercise-name">${ex.name}</span>
+      </label>
+    `;
+    checkboxesContainer.appendChild(item);
+  });
+
+  checkboxesContainer.querySelectorAll('.exercise-cb').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const id = e.target.value;
+      if (e.target.checked) {
+        if (!creatorSelectedIds.includes(id)) creatorSelectedIds.push(id);
+      } else {
+        creatorSelectedIds = creatorSelectedIds.filter(i => i !== id);
+      }
+      renderCreatorForm();
+      updateLiveEstimatedTime();
+    });
+  });
+
+  updateLiveEstimatedTime();
+}
+
+// Fonction globale pour déplacer un exercice dans le créateur
+window.moveExercise = function(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= creatorSelectedIds.length) return;
+  const temp = creatorSelectedIds[index];
+  creatorSelectedIds[index] = creatorSelectedIds[newIndex];
+  creatorSelectedIds[newIndex] = temp;
+  renderCreatorForm();
+};
+
 // --- METTRE À JOUR LE TEMPS ESTIMÉ EN DIRECT ---
 function updateLiveEstimatedTime() {
   const rounds = parseInt(document.getElementById('routine-rounds').value, 10) || 1;
-  const checkedCount = document.querySelectorAll('input[name="exercise-choice"]:checked').length;
-  const timeText = calculateDurationText(rounds, checkedCount);
+  const timeText = calculateDurationText(rounds, creatorSelectedIds.length);
   document.getElementById('estimated-time-display').textContent = timeText;
 }
 
@@ -196,16 +294,13 @@ function openLibrary() {
 function saveNewRoutine() {
   const nameInput = document.getElementById('routine-name').value.trim();
   const roundsInput = parseInt(document.getElementById('routine-rounds').value, 10);
-  
-  const checkboxes = document.querySelectorAll('input[name="exercise-choice"]:checked');
-  const selectedExerciseIds = Array.from(checkboxes).map(cb => cb.value);
 
   if (!nameInput) {
     alert('Veuillez donner un nom à votre séance.');
     return;
   }
 
-  if (selectedExerciseIds.length === 0) {
+  if (creatorSelectedIds.length === 0) {
     alert('Veuillez sélectionner au moins un exercice.');
     return;
   }
@@ -214,7 +309,7 @@ function saveNewRoutine() {
     id: 'routine_' + Date.now(),
     name: nameInput,
     rounds: isNaN(roundsInput) || roundsInput < 1 ? 3 : roundsInput,
-    exerciseIds: selectedExerciseIds
+    exerciseIds: [...creatorSelectedIds]
   };
 
   routines.push(newRoutine);
@@ -242,6 +337,10 @@ function deleteRoutine(id) {
 function startRoutine(id) {
   activeRoutine = routines.find(r => r.id === id);
   if (!activeRoutine) return;
+
+  // Initialisation audio au clic (déverrouillage iOS Safari)
+  initAudio();
+  requestWakeLock();
 
   currentRound = 1;
   currentIndex = 0;
@@ -312,6 +411,7 @@ function loadStep() {
   }, 1000);
 }
 
+// --- GESTION DE LA FIN D'UNE ÉTAPE (v1.3 corrigée) ---
 function handleTimerEnd() {
   if (workflowState === 'initial_setup') {
     workflowState = 'exercise';
@@ -320,22 +420,42 @@ function handleTimerEnd() {
   else if (workflowState === 'mise_en_place') {
     workflowState = 'exercise';
     currentIndex++;
-
-    if (currentIndex >= activeRoutine.exerciseIds.length) {
-      currentIndex = 0;
-      currentRound++;
-
-      if (currentRound > activeRoutine.rounds) {
-        showScreen('completion');
-        return;
-      }
-    }
     loadStep();
   } 
   else {
+    // Fin d'un exercice (30s)
+    // Vérifier si c'est le tout dernier exercice du tout dernier tour
+    if (currentIndex === activeRoutine.exerciseIds.length - 1 && currentRound === activeRoutine.rounds) {
+      releaseWakeLock();
+      showCompletionScreen();
+      return;
+    }
+
+    // Sinon, avancer normalement
+    currentIndex++;
+    if (currentIndex >= activeRoutine.exerciseIds.length) {
+      currentIndex = 0;
+      currentRound++;
+    }
+
     workflowState = 'mise_en_place';
     loadStep();
   }
+}
+
+// --- AFFICHER L'ÉCRAN DE FIN DE SÉANCE ---
+function showCompletionScreen() {
+  const totalExercises = activeRoutine.exerciseIds.length;
+  const totalRounds = activeRoutine.rounds;
+  const totalBlocks = totalExercises * totalRounds;
+  const durationText = calculateDurationText(totalRounds, totalExercises);
+
+  document.getElementById('stat-duration').textContent = durationText;
+  document.getElementById('stat-exercises').textContent = totalExercises;
+  document.getElementById('stat-rounds').textContent = totalRounds;
+  document.getElementById('stat-total').textContent = totalBlocks;
+
+  showScreen('completion');
 }
 
 function nextStep() {
@@ -357,6 +477,7 @@ function togglePause() {
 
 function abandonWorkout() {
   clearInterval(timerInterval);
+  releaseWakeLock();
   if (confirm("Veux-tu abandonner la séance en cours ?")) {
     showScreen('selector');
   }
