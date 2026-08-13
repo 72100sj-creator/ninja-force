@@ -1,0 +1,10 @@
+# 🥷 NINJA FORCE - Historique des versions
+
+## V1.0 (Version Initiale)
+- Structure Single Page Application (SPA).
+- Moteur de séance hors ligne (Chrono, Répétitions, Repos).
+- Bibliothèque de 16 exercices poids du corps.
+- Programme par défaut de 8 exercices.
+- Personnalisation du programme et sauvegarde locale.
+- Historique des séances terminées.
+- Compatible Progressive Web App (PWA) pour iOS.
