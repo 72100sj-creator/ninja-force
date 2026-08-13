@@ -19,14 +19,20 @@ const ALL_EXERCISES = [
 ];
 
 // --- ÉTAT DE L'APPLICATION ---
-let routines = JSON.parse(localStorage.getItem('ninja_routines')) || [
-  {
-    id: 'default-routine',
-    name: 'Routine Ninja Classique',
-    rounds: 3,
-    exerciseIds: ['squat', 'pompes', 'fentes', 'planche']
-  }
-];
+let routines = [];
+try {
+  routines = JSON.parse(localStorage.getItem('ninja_routines'));
+  if (!Array.isArray(routines)) throw new Error("Format invalide");
+} catch(e) {
+  routines = [
+    {
+      id: 'default-routine',
+      name: 'Routine Ninja Classique',
+      rounds: 3,
+      exerciseIds: ['squat', 'pompes', 'fentes', 'planche']
+    }
+  ];
+}
 
 let activeRoutine = null;
 let currentRound = 1;
@@ -43,19 +49,71 @@ let creatorSelectedIds = [];
 let wakeLock = null;
 let audioCtx = null;
 
-// --- SÉLECTION DES ÉLÉMENTS HTML ---
-const screens = {
-  selector: document.getElementById('routine-selector-screen'),
-  creator: document.getElementById('routine-creator-screen'),
-  workout: document.getElementById('workout-screen'),
-  completion: document.getElementById('completion-screen'),
-  library: document.getElementById('library-screen')
-};
+// --- INITIALISATION AU CHARGEMENT (SÉCURISÉE) ---
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    initEventListeners();
+  } catch(e) { console.error("Erreur événements:", e); }
+  
+  try {
+    renderRoutinesList();
+  } catch(e) { console.error("Erreur rendu liste:", e); }
+});
+
+// --- ATTACHEMENT SÉCURISÉ DES ÉVÉNEMENTS ---
+// Cette fonction empêche l'application de planter si un bouton est introuvable (problème de cache)
+function safeAddListener(id, eventType, callback) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.addEventListener(eventType, callback);
+  }
+}
+
+function initEventListeners() {
+  safeAddListener('btn-create-routine', 'click', openCreator);
+  safeAddListener('btn-cancel-routine', 'click', () => showScreen('selector'));
+  safeAddListener('btn-save-routine', 'click', saveNewRoutine);
+  
+  safeAddListener('btn-library', 'click', openLibrary);
+  safeAddListener('btn-library-back', 'click', () => showScreen('selector'));
+
+  safeAddListener('btn-pause', 'click', togglePause);
+  safeAddListener('btn-next', 'click', nextStep);
+  safeAddListener('btn-abandon', 'click', abandonWorkout);
+  safeAddListener('btn-home', 'click', () => {
+    releaseWakeLock();
+    showScreen('selector');
+  });
+}
+
+// --- GESTION DES ÉCRANS BLINDÉE ---
+function showScreen(screenName) {
+  const screenMap = {
+    'selector': 'routine-selector-screen',
+    'creator': 'routine-creator-screen',
+    'workout': 'workout-screen',
+    'completion': 'completion-screen',
+    'library': 'library-screen'
+  };
+  
+  // 1. Masquer tous les écrans
+  document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+  
+  // 2. Afficher uniquement l'écran demandé
+  const targetId = screenMap[screenName];
+  if (targetId) {
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.style.display = 'block';
+    }
+  }
+}
 
 // --- CALCUL DU TEMPS ESTIMÉ ---
 function calculateDurationText(rounds, exerciseCount) {
-  if (exerciseCount === 0) return "0 min";
-  const totalSeconds = 10 + (rounds * exerciseCount * (30 + 15));
+  if (!exerciseCount || exerciseCount === 0) return "0 min";
+  const r = parseInt(rounds, 10) || 1;
+  const totalSeconds = 10 + (r * exerciseCount * (30 + 15));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   if (minutes === 0) return `${seconds}s`;
@@ -115,31 +173,24 @@ document.addEventListener('visibilitychange', async () => {
   }
 });
 
-// --- INITIALISATION AU CHARGEMENT ---
-document.addEventListener('DOMContentLoaded', () => {
-  renderRoutinesList();
-  initEventListeners();
-});
-
-// --- GESTION DES ÉCRANS ---
-function showScreen(screenName) {
-  Object.values(screens).forEach(screen => screen.style.display = 'none');
-  screens[screenName].style.display = 'block';
-}
-
 // --- AFFICHAGE DE LA LISTE DES SÉANCES ---
 function renderRoutinesList() {
   const container = document.getElementById('saved-routines-list');
+  if (!container) return; // Sécurité
+  
   container.innerHTML = '';
 
   routines.forEach((routine) => {
-    const duration = calculateDurationText(routine.rounds, routine.exerciseIds.length);
+    // Sécurisation au cas où de vieilles données seraient présentes
+    const exList = routine.exerciseIds || [];
+    const duration = calculateDurationText(routine.rounds, exList.length);
+    
     const card = document.createElement('div');
     card.className = 'routine-card';
     card.innerHTML = `
       <div>
-        <h3>${routine.name}</h3>
-        <p>${routine.rounds} tours • ${routine.exerciseIds.length} exercices • ⏱️ ~${duration}</p>
+        <h3>${routine.name || 'Séance'}</h3>
+        <p>${routine.rounds} tours • ${exList.length} exercices • ⏱️ ~${duration}</p>
       </div>
       <div class="routine-card-actions">
         <button class="btn-primary start-routine-btn" data-id="${routine.id}">Lancer</button>
@@ -149,6 +200,7 @@ function renderRoutinesList() {
     container.appendChild(card);
   });
 
+  // Rebrancher les événements sur les boutons générés dynamiquement
   document.querySelectorAll('.start-routine-btn').forEach(btn => {
     btn.addEventListener('click', (e) => startRoutine(e.target.dataset.id));
   });
@@ -158,93 +210,84 @@ function renderRoutinesList() {
   });
 }
 
-// --- ÉCOUTEURS D'ÉVÉNEMENTS GLOBAUX ---
-function initEventListeners() {
-  document.getElementById('btn-create-routine').addEventListener('click', openCreator);
-  document.getElementById('btn-cancel-routine').addEventListener('click', () => showScreen('selector'));
-  document.getElementById('btn-save-routine').addEventListener('click', saveNewRoutine);
-  
-  document.getElementById('btn-library').addEventListener('click', openLibrary);
-  document.getElementById('btn-library-back').addEventListener('click', () => showScreen('selector'));
-
-  document.getElementById('btn-pause').addEventListener('click', togglePause);
-  document.getElementById('btn-next').addEventListener('click', nextStep);
-  document.getElementById('btn-abandon').addEventListener('click', abandonWorkout);
-  document.getElementById('btn-home').addEventListener('click', () => {
-    releaseWakeLock();
-    showScreen('selector');
-  });
-}
-
 // --- OUVRIR LE CRÉATEUR DE SÉANCE ---
 function openCreator() {
-  document.getElementById('routine-name').value = '';
-  document.getElementById('routine-rounds').value = 3;
+  const nameInput = document.getElementById('routine-name');
+  const roundsInput = document.getElementById('routine-rounds');
+  
+  if (nameInput) nameInput.value = '';
+  if (roundsInput) {
+    roundsInput.value = 3;
+    roundsInput.oninput = updateLiveEstimatedTime;
+  }
   
   creatorSelectedIds = ALL_EXERCISES.map(ex => ex.id);
   renderCreatorForm();
-
-  document.getElementById('routine-rounds').oninput = updateLiveEstimatedTime;
-
   showScreen('creator');
 }
 
+// --- CONSTRUCTEUR DE SÉANCE ---
 function renderCreatorForm() {
   const orderedContainer = document.getElementById('ordered-exercises-list');
-  orderedContainer.innerHTML = '';
+  if (orderedContainer) {
+    orderedContainer.innerHTML = '';
 
-  if (creatorSelectedIds.length === 0) {
-    orderedContainer.innerHTML = '<p style="color: #888; font-size: 0.85rem; text-align: center; margin: 5px 0;">Aucun exercice sélectionné</p>';
-  } else {
-    creatorSelectedIds.forEach((id, index) => {
-      const ex = ALL_EXERCISES.find(e => e.id === id);
-      if (!ex) return;
+    if (creatorSelectedIds.length === 0) {
+      orderedContainer.innerHTML = '<p style="color: #888; font-size: 0.85rem; text-align: center; margin: 5px 0;">Aucun exercice sélectionné</p>';
+    } else {
+      creatorSelectedIds.forEach((id, index) => {
+        const ex = ALL_EXERCISES.find(e => e.id === id);
+        if (!ex) return;
 
-      const row = document.createElement('div');
-      row.className = 'ordered-item';
-      row.innerHTML = `
-        <div class="ordered-item-left">
-          <span class="ordered-index">${index + 1}.</span>
-          <img src="${ex.img}" alt="${ex.name}" class="ordered-thumb">
-          <span class="ordered-name">${ex.name}</span>
-        </div>
-        <div class="ordered-btns">
-          <button type="button" class="btn-reorder" onclick="moveExercise(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
-          <button type="button" class="btn-reorder" onclick="moveExercise(${index}, 1)" ${index === creatorSelectedIds.length - 1 ? 'disabled' : ''}>↓</button>
-        </div>
-      `;
-      orderedContainer.appendChild(row);
-    });
+        const row = document.createElement('div');
+        row.className = 'ordered-item';
+        // Ajout des miniatures de la V1.2 ici : <img src="${ex.img}" ...>
+        row.innerHTML = `
+          <div class="ordered-item-left">
+            <span class="ordered-index">${index + 1}.</span>
+            <img src="${ex.img}" alt="${ex.name}" class="ordered-thumb">
+            <span class="ordered-name">${ex.name}</span>
+          </div>
+          <div class="ordered-btns">
+            <button type="button" class="btn-reorder" onclick="moveExercise(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+            <button type="button" class="btn-reorder" onclick="moveExercise(${index}, 1)" ${index === creatorSelectedIds.length - 1 ? 'disabled' : ''}>↓</button>
+          </div>
+        `;
+        orderedContainer.appendChild(row);
+      });
+    }
   }
 
   const checkboxesContainer = document.getElementById('exercise-checkboxes-list');
-  checkboxesContainer.innerHTML = '';
+  if (checkboxesContainer) {
+    checkboxesContainer.innerHTML = '';
 
-  ALL_EXERCISES.forEach(ex => {
-    const isChecked = creatorSelectedIds.includes(ex.id);
-    const item = document.createElement('div');
-    item.className = 'creator-exercise-item';
-    item.innerHTML = `
-      <label class="creator-checkbox-label">
-        <input type="checkbox" value="${ex.id}" ${isChecked ? 'checked' : ''} class="exercise-cb">
-        <span class="creator-exercise-name">${ex.name}</span>
-      </label>
-    `;
-    checkboxesContainer.appendChild(item);
-  });
-
-  checkboxesContainer.querySelectorAll('.exercise-cb').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const id = e.target.value;
-      if (e.target.checked) {
-        if (!creatorSelectedIds.includes(id)) creatorSelectedIds.push(id);
-      } else {
-        creatorSelectedIds = creatorSelectedIds.filter(i => i !== id);
-      }
-      renderCreatorForm();
-      updateLiveEstimatedTime();
+    ALL_EXERCISES.forEach(ex => {
+      const isChecked = creatorSelectedIds.includes(ex.id);
+      const item = document.createElement('div');
+      item.className = 'creator-exercise-item';
+      item.innerHTML = `
+        <label class="creator-checkbox-label">
+          <input type="checkbox" value="${ex.id}" ${isChecked ? 'checked' : ''} class="exercise-cb">
+          <span class="creator-exercise-name">${ex.name}</span>
+        </label>
+      `;
+      checkboxesContainer.appendChild(item);
     });
-  });
+
+    checkboxesContainer.querySelectorAll('.exercise-cb').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const id = e.target.value;
+        if (e.target.checked) {
+          if (!creatorSelectedIds.includes(id)) creatorSelectedIds.push(id);
+        } else {
+          creatorSelectedIds = creatorSelectedIds.filter(i => i !== id);
+        }
+        renderCreatorForm();
+        updateLiveEstimatedTime();
+      });
+    });
+  }
 
   updateLiveEstimatedTime();
 }
@@ -260,39 +303,48 @@ window.moveExercise = function(index, direction) {
 
 // --- METTRE À JOUR LE TEMPS ESTIMÉ EN DIRECT ---
 function updateLiveEstimatedTime() {
-  const rounds = parseInt(document.getElementById('routine-rounds').value, 10) || 1;
+  const roundsInput = document.getElementById('routine-rounds');
+  const display = document.getElementById('estimated-time-display');
+  if (!roundsInput || !display) return;
+
+  const rounds = parseInt(roundsInput.value, 10) || 1;
   const timeText = calculateDurationText(rounds, creatorSelectedIds.length);
-  document.getElementById('estimated-time-display').textContent = timeText;
+  display.textContent = timeText;
 }
 
 // --- OUVRIR LA BIBLIOTHÈQUE DES FICHES ---
 function openLibrary() {
   const container = document.getElementById('library-exercises-list');
-  container.innerHTML = '';
-
-  ALL_EXERCISES.forEach(ex => {
-    const card = document.createElement('div');
-    card.className = 'exercise-card';
-    card.innerHTML = `
-      <h3>${ex.name}</h3>
-      <div class="exercise-image">
-        <img src="${ex.img}" alt="${ex.name}">
-      </div>
-      <p><strong>Description :</strong> ${ex.desc}</p>
-      <p class="exercise-tip">💡 <strong>Conseil Ninja :</strong> ${ex.tip}</p>
-    `;
-    container.appendChild(card);
-  });
-
+  if (container) {
+    container.innerHTML = '';
+    ALL_EXERCISES.forEach(ex => {
+      const card = document.createElement('div');
+      card.className = 'exercise-card';
+      card.innerHTML = `
+        <h3>${ex.name}</h3>
+        <div class="exercise-image">
+          <img src="${ex.img}" alt="${ex.name}">
+        </div>
+        <p><strong>Description :</strong> ${ex.desc}</p>
+        <p class="exercise-tip">💡 <strong>Conseil Ninja :</strong> ${ex.tip}</p>
+      `;
+      container.appendChild(card);
+    });
+  }
   showScreen('library');
 }
 
 // --- SAUVEGARDER UNE NOUVELLE SÉANCE ---
 function saveNewRoutine() {
-  const nameInput = document.getElementById('routine-name').value.trim();
-  const roundsInput = parseInt(document.getElementById('routine-rounds').value, 10);
+  const nameInput = document.getElementById('routine-name');
+  const roundsInput = document.getElementById('routine-rounds');
+  
+  if (!nameInput || !roundsInput) return;
 
-  if (!nameInput) {
+  const nameVal = nameInput.value.trim();
+  const roundsVal = parseInt(roundsInput.value, 10);
+
+  if (!nameVal) {
     alert('Veuillez donner un nom à votre séance.');
     return;
   }
@@ -304,8 +356,8 @@ function saveNewRoutine() {
 
   const newRoutine = {
     id: 'routine_' + Date.now(),
-    name: nameInput,
-    rounds: isNaN(roundsInput) || roundsInput < 1 ? 3 : roundsInput,
+    name: nameVal,
+    rounds: isNaN(roundsVal) || roundsVal < 1 ? 3 : roundsVal,
     exerciseIds: [...creatorSelectedIds]
   };
 
@@ -333,7 +385,7 @@ function deleteRoutine(id) {
 // --- LANCER UN ENTRAÎNEMENT ---
 function startRoutine(id) {
   activeRoutine = routines.find(r => r.id === id);
-  if (!activeRoutine) return;
+  if (!activeRoutine || !activeRoutine.exerciseIds || activeRoutine.exerciseIds.length === 0) return;
 
   initAudio();
   requestWakeLock();
@@ -342,7 +394,9 @@ function startRoutine(id) {
   currentIndex = 0;
   workflowState = 'initial_setup';
 
-  document.getElementById('current-routine-title').textContent = activeRoutine.name;
+  const titleEl = document.getElementById('current-routine-title');
+  if (titleEl) titleEl.textContent = activeRoutine.name;
+  
   showScreen('workout');
   loadStep();
 }
@@ -351,42 +405,50 @@ function startRoutine(id) {
 function loadStep() {
   clearInterval(timerInterval);
   isPaused = false;
-  document.getElementById('btn-pause').textContent = 'Pause';
+  
+  const btnPause = document.getElementById('btn-pause');
+  if (btnPause) btnPause.textContent = 'Pause';
+
+  const nameEl = document.getElementById('exercise-name');
+  const descEl = document.getElementById('exercise-desc');
+  const imgEl = document.getElementById('exercise-img');
 
   if (workflowState === 'initial_setup') {
     timeLeft = 10;
-    document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
+    if (nameEl) nameEl.textContent = "⏱️ Mise en place";
     
     const firstExId = activeRoutine.exerciseIds[0];
     const firstExData = ALL_EXERCISES.find(e => e.id === firstExId);
     
-    document.getElementById('exercise-desc').textContent = firstExData ? `Premier exercice : ${firstExData.name}` : "Prépare-toi !";
-    document.getElementById('exercise-img').src = firstExData ? firstExData.img : "";
+    if (descEl) descEl.textContent = firstExData ? `Premier exercice : ${firstExData.name}` : "Prépare-toi !";
+    if (imgEl) imgEl.src = firstExData ? firstExData.img : "";
   } 
   else if (workflowState === 'mise_en_place') {
     timeLeft = 15;
-    document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
+    if (nameEl) nameEl.textContent = "⏱️ Mise en place";
     
     const nextIndex = (currentIndex + 1) % activeRoutine.exerciseIds.length;
     const nextExId = activeRoutine.exerciseIds[nextIndex];
     const nextExData = ALL_EXERCISES.find(e => e.id === nextExId);
     
-    document.getElementById('exercise-desc').textContent = nextExData ? `Prochain exercice : ${nextExData.name}` : "Prépare-toi !";
-    document.getElementById('exercise-img').src = nextExData ? nextExData.img : "";
+    if (descEl) descEl.textContent = nextExData ? `Prochain exercice : ${nextExData.name}` : "Prépare-toi !";
+    if (imgEl) imgEl.src = nextExData ? nextExData.img : "";
   } 
   else {
     timeLeft = 30;
     const exerciseId = activeRoutine.exerciseIds[currentIndex];
     const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
 
-    if (!exerciseData) return;
-
-    document.getElementById('exercise-name').textContent = exerciseData.name;
-    document.getElementById('exercise-desc').textContent = exerciseData.desc;
-    document.getElementById('exercise-img').src = exerciseData.img;
+    if (exerciseData) {
+      if (nameEl) nameEl.textContent = exerciseData.name;
+      if (descEl) descEl.textContent = exerciseData.desc;
+      if (imgEl) imgEl.src = exerciseData.img;
+    }
   }
 
-  document.getElementById('round-counter').textContent = `Tour ${currentRound}/${activeRoutine.rounds}`;
+  const roundEl = document.getElementById('round-counter');
+  if (roundEl) roundEl.textContent = `Tour ${currentRound}/${activeRoutine.rounds}`;
+  
   updateTimerDisplay();
 
   timerInterval = setInterval(() => {
@@ -443,10 +505,15 @@ function showCompletionScreen() {
   const totalBlocks = totalExercises * totalRounds;
   const durationText = calculateDurationText(totalRounds, totalExercises);
 
-  document.getElementById('stat-duration').textContent = durationText;
-  document.getElementById('stat-exercises').textContent = totalExercises;
-  document.getElementById('stat-rounds').textContent = totalRounds;
-  document.getElementById('stat-total').textContent = totalBlocks;
+  const statDur = document.getElementById('stat-duration');
+  const statEx = document.getElementById('stat-exercises');
+  const statRnd = document.getElementById('stat-rounds');
+  const statTot = document.getElementById('stat-total');
+
+  if (statDur) statDur.textContent = durationText;
+  if (statEx) statEx.textContent = totalExercises;
+  if (statRnd) statRnd.textContent = totalRounds;
+  if (statTot) statTot.textContent = totalBlocks;
 
   showScreen('completion');
 }
@@ -457,491 +524,17 @@ function nextStep() {
 }
 
 function updateTimerDisplay() {
+  const display = document.getElementById('timer-display');
+  if (!display) return;
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  document.getElementById('timer-display').textContent = 
-    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 function togglePause() {
   isPaused = !isPaused;
-  document.getElementById('btn-pause').textContent = isPaused ? 'Reprendre' : 'Pause';
-}
-
-function abandonWorkout() {
-  clearInterval(timerInterval);
-  releaseWakeLock();
-  if (confirm("Veux-tu abandonner la séance en cours ?")) {
-    showScreen('selector');
-  }
-}// --- BIBLIOTHÈQUE DES 16 EXERCICES AVEC CONSEILS ---
-const ALL_EXERCISES = [
-  { id: 'squat', name: 'Squat', desc: 'Fléchis les genoux en gardant le dos droit.', tip: 'Garde bien le poids sur les talons et la poitrine ouverte.', img: 'assets/exercises/01-squat.jpg' },
-  { id: 'fentes', name: 'Fentes', desc: 'Pas en avant, fléchis les deux genoux à 90°.', tip: 'Ne touche pas le genou arrière violemment par terre.', img: 'assets/exercises/02-fentes.jpg' },
-  { id: 'pont', name: 'Pont fessier', desc: 'Allongé sur le dos, soulève le bassin vers le haut.', tip: 'Contracte bien les fessiers et maintiens 1 seconde en haut.', img: 'assets/exercises/03-pont.jpg' },
-  { id: 'pompes', name: 'Pompes', desc: 'Corps gainé, descends la poitrine vers le sol.', tip: 'Garde les coudes près du corps pour protéger tes épaules.', img: 'assets/exercises/04-pompes.jpg' },
-  { id: 'dips', name: 'Dips chaise', desc: 'Mains sur un support stable, fléchis et tends les bras.', tip: 'Garde le dos près du support et fléchis les bras à 90°.', img: 'assets/exercises/05-dips.jpg' },
-  { id: 'birddog', name: 'Bird Dog', desc: 'En appui quadrupedal, tends le bras et la jambe opposés.', tip: 'Ne creuse pas le dos, cherche l’alignement parfait.', img: 'assets/exercises/06-birddog.jpg' },
-  { id: 'ytw', name: 'YTW', desc: 'Mouvements des bras allongés sur le ventre pour le haut du dos.', tip: 'Serre les omoplates, fais un mouvement lent et contrôlé.', img: 'assets/exercises/07-ytw.jpg' },
-  { id: 'planche', name: 'Planche / Gainage', desc: 'Appuis sur les avant-bras et pointes de pieds, corps aligné.', tip: 'Aspire le ventre et aligne la tête, le bassin et les talons.', img: 'assets/exercises/08-planche.jpg' },
-  { id: 'planchelat', name: 'Planche latérale', desc: 'En appui sur un seul avant-bras, corps de profil bien aligné.', tip: 'Repousse bien le sol avec l’avant-bras pour ne pas t’affaisser.', img: 'assets/exercises/09-planchelat.jpg' },
-  { id: 'deadbug', name: 'Dead Bug', desc: 'Sur le dos, descends alternativement bras et jambe opposés.', tip: 'Plaque fermement le bas du dos contre le sol en permanence.', img: 'assets/exercises/10-deadbug.jpg' },
-  { id: 'pike', name: 'Pike Push-ups', desc: 'Pompes inclinées fesses en l’air pour cibler les épaules.', tip: 'Regarde entre tes pieds et pousse le sol vers le haut.', img: 'assets/exercises/11-pike.jpg' },
-  { id: 'commando', name: 'Commando', desc: 'Transition dynamique entre planche sur les coudes et sur les mains.', tip: 'Garde les hanches stables, évite de te balancer de gauche à droite.', img: 'assets/exercises/12-commando.jpg' },
-  { id: 'mollets', name: 'Mollets', desc: 'Élévations sur la pointe des pieds pour renforcer les mollets.', tip: 'Monte le plus haut possible sur la pointe des pieds.', img: 'assets/exercises/13-mollets.jpg' },
-  { id: 'climbers', name: 'Mountain Climbers', desc: 'En position de planche, ramène alternativement les genoux vers la poitrine.', tip: 'Garde les épaules bien au-dessus des mains, rythme régulier.', img: 'assets/exercises/14-climbers.jpg' },
-  { id: 'jacks', name: 'Jumping Jacks', desc: 'Saut écarté avec élévation des bras pour dynamiser le rythme.', tip: 'Amortis bien tes sauts sur l’avant des pieds.', img: 'assets/exercises/15-jacks.jpg' },
-  { id: 'genoux', name: 'Montées de genoux', desc: 'Sur place, monte les genoux alternativement vers la poitrine.', tip: 'Garde le buste droit et monte les genoux à hauteur de bassin.', img: 'assets/exercises/16-genoux.jpg' }
-];
-
-// --- ÉTAT DE L'APPLICATION ---
-let routines = JSON.parse(localStorage.getItem('ninja_routines')) || [
-  {
-    id: 'default-routine',
-    name: 'Routine Ninja Classique',
-    rounds: 3,
-    exerciseIds: ['squat', 'pompes', 'fentes', 'planche']
-  }
-];
-
-let activeRoutine = null;
-let currentRound = 1;
-let currentIndex = 0;
-let timerInterval = null;
-let timeLeft = 30;
-let isPaused = false;
-let workflowState = 'initial_setup';
-
-// État temporaire du créateur de séance
-let creatorSelectedIds = [];
-
-// Wake Lock API & Audio Context global
-let wakeLock = null;
-let audioCtx = null;
-
-// --- SÉLECTION DES ÉLÉMENTS HTML ---
-const screens = {
-  selector: document.getElementById('routine-selector-screen'),
-  creator: document.getElementById('routine-creator-screen'),
-  workout: document.getElementById('workout-screen'),
-  completion: document.getElementById('completion-screen'),
-  library: document.getElementById('library-screen')
-};
-
-// --- CALCUL DU TEMPS ESTIMÉ ---
-function calculateDurationText(rounds, exerciseCount) {
-  if (exerciseCount === 0) return "0 min";
-  const totalSeconds = 10 + (rounds * exerciseCount * (30 + 15));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  if (minutes === 0) return `${seconds}s`;
-  if (seconds === 0) return `${minutes} min`;
-  return `${minutes} min ${seconds}s`;
-}
-
-// --- INITIALISATION AUDIO ROBUSTE (iOS Safari) ---
-function initAudio() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  } catch (e) {}
-}
-
-function playBeep() {
-  try {
-    initAudio();
-    if (!audioCtx) return;
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.25);
-  } catch (e) {}
-}
-
-// --- WAKE LOCK API ---
-async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch (err) {}
-}
-
-async function releaseWakeLock() {
-  try {
-    if (wakeLock) {
-      await wakeLock.release();
-      wakeLock = null;
-    }
-  } catch (err) {}
-}
-
-document.addEventListener('visibilitychange', async () => {
-  if (wakeLock !== null && document.visibilityState === 'visible') {
-    await requestWakeLock();
-  }
-});
-
-// --- INITIALISATION AU CHARGEMENT ---
-document.addEventListener('DOMContentLoaded', () => {
-  renderRoutinesList();
-  initEventListeners();
-});
-
-// --- GESTION DES ÉCRANS ---
-function showScreen(screenName) {
-  Object.values(screens).forEach(screen => screen.style.display = 'none');
-  screens[screenName].style.display = 'block';
-}
-
-// --- AFFICHAGE DE LA LISTE DES SÉANCES ---
-function renderRoutinesList() {
-  const container = document.getElementById('saved-routines-list');
-  container.innerHTML = '';
-
-  routines.forEach((routine) => {
-    const duration = calculateDurationText(routine.rounds, routine.exerciseIds.length);
-    const card = document.createElement('div');
-    card.className = 'routine-card';
-    card.innerHTML = `
-      <div>
-        <h3>${routine.name}</h3>
-        <p>${routine.rounds} tours • ${routine.exerciseIds.length} exercices • ⏱️ ~${duration}</p>
-      </div>
-      <div class="routine-card-actions">
-        <button class="btn-primary start-routine-btn" data-id="${routine.id}">Lancer</button>
-        <button class="btn-secondary delete-routine-btn" data-id="${routine.id}">Supprimer</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-
-  document.querySelectorAll('.start-routine-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => startRoutine(e.target.dataset.id));
-  });
-
-  document.querySelectorAll('.delete-routine-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => deleteRoutine(e.target.dataset.id));
-  });
-}
-
-// --- ÉCOUTEURS D'ÉVÉNEMENTS GLOBAUX ---
-function initEventListeners() {
-  document.getElementById('btn-create-routine').addEventListener('click', openCreator);
-  document.getElementById('btn-cancel-routine').addEventListener('click', () => showScreen('selector'));
-  document.getElementById('btn-save-routine').addEventListener('click', saveNewRoutine);
-  
-  document.getElementById('btn-library').addEventListener('click', openLibrary);
-  document.getElementById('btn-library-back').addEventListener('click', () => showScreen('selector'));
-
-  document.getElementById('btn-pause').addEventListener('click', togglePause);
-  document.getElementById('btn-next').addEventListener('click', nextStep);
-  document.getElementById('btn-abandon').addEventListener('click', abandonWorkout);
-  document.getElementById('btn-home').addEventListener('click', () => {
-    releaseWakeLock();
-    showScreen('selector');
-  });
-}
-
-// --- OUVRIR LE CRÉATEUR DE SÉANCE ---
-function openCreator() {
-  document.getElementById('routine-name').value = '';
-  document.getElementById('routine-rounds').value = 3;
-  
-  creatorSelectedIds = ALL_EXERCISES.map(ex => ex.id);
-  renderCreatorForm();
-
-  document.getElementById('routine-rounds').oninput = updateLiveEstimatedTime;
-
-  showScreen('creator');
-}
-
-function renderCreatorForm() {
-  const orderedContainer = document.getElementById('ordered-exercises-list');
-  orderedContainer.innerHTML = '';
-
-  if (creatorSelectedIds.length === 0) {
-    orderedContainer.innerHTML = '<p style="color: #888; font-size: 0.85rem; text-align: center; margin: 5px 0;">Aucun exercice sélectionné</p>';
-  } else {
-    creatorSelectedIds.forEach((id, index) => {
-      const ex = ALL_EXERCISES.find(e => e.id === id);
-      if (!ex) return;
-
-      const row = document.createElement('div');
-      row.className = 'ordered-item';
-      row.innerHTML = `
-        <div class="ordered-item-left">
-          <span class="ordered-index">${index + 1}.</span>
-          <img src="${ex.img}" alt="${ex.name}" class="ordered-thumb">
-          <span class="ordered-name">${ex.name}</span>
-        </div>
-        <div class="ordered-btns">
-          <button type="button" class="btn-reorder" onclick="moveExercise(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
-          <button type="button" class="btn-reorder" onclick="moveExercise(${index}, 1)" ${index === creatorSelectedIds.length - 1 ? 'disabled' : ''}>↓</button>
-        </div>
-      `;
-      orderedContainer.appendChild(row);
-    });
-  }
-
-  const checkboxesContainer = document.getElementById('exercise-checkboxes-list');
-  checkboxesContainer.innerHTML = '';
-
-  ALL_EXERCISES.forEach(ex => {
-    const isChecked = creatorSelectedIds.includes(ex.id);
-    const item = document.createElement('div');
-    item.className = 'creator-exercise-item';
-    item.innerHTML = `
-      <label class="creator-checkbox-label">
-        <input type="checkbox" value="${ex.id}" ${isChecked ? 'checked' : ''} class="exercise-cb">
-        <span class="creator-exercise-name">${ex.name}</span>
-      </label>
-    `;
-    checkboxesContainer.appendChild(item);
-  });
-
-  checkboxesContainer.querySelectorAll('.exercise-cb').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const id = e.target.value;
-      if (e.target.checked) {
-        if (!creatorSelectedIds.includes(id)) creatorSelectedIds.push(id);
-      } else {
-        creatorSelectedIds = creatorSelectedIds.filter(i => i !== id);
-      }
-      renderCreatorForm();
-      updateLiveEstimatedTime();
-    });
-  });
-
-  updateLiveEstimatedTime();
-}
-
-window.moveExercise = function(index, direction) {
-  const newIndex = index + direction;
-  if (newIndex < 0 || newIndex >= creatorSelectedIds.length) return;
-  const temp = creatorSelectedIds[index];
-  creatorSelectedIds[index] = creatorSelectedIds[newIndex];
-  creatorSelectedIds[newIndex] = temp;
-  renderCreatorForm();
-};
-
-// --- METTRE À JOUR LE TEMPS ESTIMÉ EN DIRECT ---
-function updateLiveEstimatedTime() {
-  const rounds = parseInt(document.getElementById('routine-rounds').value, 10) || 1;
-  const timeText = calculateDurationText(rounds, creatorSelectedIds.length);
-  document.getElementById('estimated-time-display').textContent = timeText;
-}
-
-// --- OUVRIR LA BIBLIOTHÈQUE DES FICHES ---
-function openLibrary() {
-  const container = document.getElementById('library-exercises-list');
-  container.innerHTML = '';
-
-  ALL_EXERCISES.forEach(ex => {
-    const card = document.createElement('div');
-    card.className = 'exercise-card';
-    card.innerHTML = `
-      <h3>${ex.name}</h3>
-      <div class="exercise-image">
-        <img src="${ex.img}" alt="${ex.name}">
-      </div>
-      <p><strong>Description :</strong> ${ex.desc}</p>
-      <p class="exercise-tip">💡 <strong>Conseil Ninja :</strong> ${ex.tip}</p>
-    `;
-    container.appendChild(card);
-  });
-
-  showScreen('library');
-}
-
-// --- SAUVEGARDER UNE NOUVELLE SÉANCE ---
-function saveNewRoutine() {
-  const nameInput = document.getElementById('routine-name').value.trim();
-  const roundsInput = parseInt(document.getElementById('routine-rounds').value, 10);
-
-  if (!nameInput) {
-    alert('Veuillez donner un nom à votre séance.');
-    return;
-  }
-
-  if (creatorSelectedIds.length === 0) {
-    alert('Veuillez sélectionner au moins un exercice.');
-    return;
-  }
-
-  const newRoutine = {
-    id: 'routine_' + Date.now(),
-    name: nameInput,
-    rounds: isNaN(roundsInput) || roundsInput < 1 ? 3 : roundsInput,
-    exerciseIds: [...creatorSelectedIds]
-  };
-
-  routines.push(newRoutine);
-  localStorage.setItem('ninja_routines', JSON.stringify(routines));
-
-  renderRoutinesList();
-  showScreen('selector');
-}
-
-// --- SUPPRIMER UNE SÉANCE ---
-function deleteRoutine(id) {
-  if (routines.length <= 1) {
-    alert("Tu dois garder au moins une séance !");
-    return;
-  }
-
-  if (confirm("Veux-tu vraiment supprimer cette séance ?")) {
-    routines = routines.filter(r => r.id !== id);
-    localStorage.setItem('ninja_routines', JSON.stringify(routines));
-    renderRoutinesList();
-  }
-}
-
-// --- LANCER UN ENTRAÎNEMENT ---
-function startRoutine(id) {
-  activeRoutine = routines.find(r => r.id === id);
-  if (!activeRoutine) return;
-
-  initAudio();
-  requestWakeLock();
-
-  currentRound = 1;
-  currentIndex = 0;
-  workflowState = 'initial_setup';
-
-  document.getElementById('current-routine-title').textContent = activeRoutine.name;
-  showScreen('workout');
-  loadStep();
-}
-
-// --- CHARGER L'ÉTAPE COURANTE ---
-function loadStep() {
-  clearInterval(timerInterval);
-  isPaused = false;
-  document.getElementById('btn-pause').textContent = 'Pause';
-
-  if (workflowState === 'initial_setup') {
-    timeLeft = 10;
-    document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
-    
-    const firstExId = activeRoutine.exerciseIds[0];
-    const firstExData = ALL_EXERCISES.find(e => e.id === firstExId);
-    
-    document.getElementById('exercise-desc').textContent = firstExData ? `Premier exercice : ${firstExData.name}` : "Prépare-toi !";
-    document.getElementById('exercise-img').src = firstExData ? firstExData.img : "";
-  } 
-  else if (workflowState === 'mise_en_place') {
-    timeLeft = 15;
-    document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
-    
-    const nextIndex = (currentIndex + 1) % activeRoutine.exerciseIds.length;
-    const nextExId = activeRoutine.exerciseIds[nextIndex];
-    const nextExData = ALL_EXERCISES.find(e => e.id === nextExId);
-    
-    document.getElementById('exercise-desc').textContent = nextExData ? `Prochain exercice : ${nextExData.name}` : "Prépare-toi !";
-    document.getElementById('exercise-img').src = nextExData ? nextExData.img : "";
-  } 
-  else {
-    timeLeft = 30;
-    const exerciseId = activeRoutine.exerciseIds[currentIndex];
-    const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
-
-    if (!exerciseData) return;
-
-    document.getElementById('exercise-name').textContent = exerciseData.name;
-    document.getElementById('exercise-desc').textContent = exerciseData.desc;
-    document.getElementById('exercise-img').src = exerciseData.img;
-  }
-
-  document.getElementById('round-counter').textContent = `Tour ${currentRound}/${activeRoutine.rounds}`;
-  updateTimerDisplay();
-
-  timerInterval = setInterval(() => {
-    if (!isPaused) {
-      timeLeft--;
-      updateTimerDisplay();
-      
-      if (timeLeft <= 3 && timeLeft > 0) {
-        playBeep();
-      }
-
-      if (timeLeft <= 0) {
-        playBeep();
-        clearInterval(timerInterval);
-        handleTimerEnd();
-      }
-    }
-  }, 1000);
-}
-
-// --- GESTION DE LA FIN D'UNE ÉTAPE ---
-function handleTimerEnd() {
-  if (workflowState === 'initial_setup') {
-    workflowState = 'exercise';
-    loadStep();
-  } 
-  else if (workflowState === 'mise_en_place') {
-    workflowState = 'exercise';
-    currentIndex++;
-    loadStep();
-  } 
-  else {
-    if (currentIndex === activeRoutine.exerciseIds.length - 1 && currentRound === activeRoutine.rounds) {
-      releaseWakeLock();
-      showCompletionScreen();
-      return;
-    }
-
-    currentIndex++;
-    if (currentIndex >= activeRoutine.exerciseIds.length) {
-      currentIndex = 0;
-      currentRound++;
-    }
-
-    workflowState = 'mise_en_place';
-    loadStep();
-  }
-}
-
-// --- AFFICHER L'ÉCRAN DE FIN DE SÉANCE ---
-function showCompletionScreen() {
-  const totalExercises = activeRoutine.exerciseIds.length;
-  const totalRounds = activeRoutine.rounds;
-  const totalBlocks = totalExercises * totalRounds;
-  const durationText = calculateDurationText(totalRounds, totalExercises);
-
-  document.getElementById('stat-duration').textContent = durationText;
-  document.getElementById('stat-exercises').textContent = totalExercises;
-  document.getElementById('stat-rounds').textContent = totalRounds;
-  document.getElementById('stat-total').textContent = totalBlocks;
-
-  showScreen('completion');
-}
-
-function nextStep() {
-  clearInterval(timerInterval);
-  handleTimerEnd();
-}
-
-function updateTimerDisplay() {
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  document.getElementById('timer-display').textContent = 
-    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
-
-function togglePause() {
-  isPaused = !isPaused;
-  document.getElementById('btn-pause').textContent = isPaused ? 'Reprendre' : 'Pause';
+  const btn = document.getElementById('btn-pause');
+  if (btn) btn.textContent = isPaused ? 'Reprendre' : 'Pause';
 }
 
 function abandonWorkout() {
