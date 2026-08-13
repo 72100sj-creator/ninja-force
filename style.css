@@ -1,0 +1,227 @@
+/* --- STYLE GÉNÉRAL NINJA FORCE --- */
+body {
+  background-color: #0d0d0d;
+  color: #f0f0f0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 480px;
+  background: #161616;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+header h1 {
+  text-align: center;
+  color: #e50914;
+  margin-bottom: 20px;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* --- BOUTONS --- */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  padding: 12px 20px;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.btn-primary {
+  background-color: #e50914;
+  color: #fff;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: #b80710;
+}
+
+.btn-secondary {
+  background-color: #333;
+  color: #fff;
+  width: 100%;
+}
+
+.btn-secondary:hover {
+  background-color: #444;
+}
+
+/* Bouton abandon corrigé pour ne pas dépasser de l'écran */
+.btn-abandon {
+  background-color: #333;
+  color: #ff4d4d;
+  max-width: 90% !important;
+  width: auto !important;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  margin: 10px auto !important;
+  display: block;
+}
+
+.btn-abandon:hover {
+  background-color: #444;
+}
+
+/* --- ÉCRAN D'ENTRAÎNEMENT & IMAGES AGRANDIES --- */
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.exercise-card {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  text-align: center;
+}
+
+.exercise-card h3 {
+  margin-top: 0;
+  color: #fff;
+}
+
+.exercise-image img {
+  width: 200%;
+  max-height: 280px; /* Images agrandies et bien visibles */
+  object-fit: contain; /* Conserve toute l'image sans la couper */
+  background-color: #121212;
+  border-radius: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.timer {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #e50914;
+  margin: 15px 0;
+}
+
+.workout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- LISTE ET CRÉATEUR DE SÉANCES --- */
+.routines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.routine-card {
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.routine-card h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+}
+
+.routine-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.routine-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.routine-card-actions button {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  width: auto;
+}
+
+.exercises-checkbox-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 15px 0;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #e50914;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #ccc;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #fff;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.creator-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
