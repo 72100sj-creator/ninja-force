@@ -276,4 +276,14 @@ button {
   overflow-y: auto;
   margin-bottom: 15px;
   padding-right: 5px;
+}/* --- Style pour les conseils dans les fiches de la bibliothèque --- */
+.exercise-tip {
+  background: #221212;
+  border-left: 4px solid #e50914;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 0 6px 6px 0;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #ffcccc;
 }
