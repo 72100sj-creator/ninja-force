@@ -34,7 +34,7 @@ let currentIndex = 0;
 let timerInterval = null;
 let timeLeft = 30;
 let isPaused = false;
-let workflowState = 'initial_setup'; // 'initial_setup', 'exercise', 'mise_en_place'
+let workflowState = 'initial_setup';
 
 // --- SÉLECTION DES ÉLÉMENTS HTML ---
 const screens = {
@@ -45,7 +45,7 @@ const screens = {
   library: document.getElementById('library-screen')
 };
 
-// --- CALCUL DU TEMPS ESTIMÉ (10s initial + 30s effort + 15s mise en place par exercice) ---
+// --- CALCUL DU TEMPS ESTIMÉ ---
 function calculateDurationText(rounds, exerciseCount) {
   if (exerciseCount === 0) return "0 min";
   const totalSeconds = 10 + (rounds * exerciseCount * (30 + 15));
@@ -154,10 +154,8 @@ function openCreator() {
     container.appendChild(item);
   });
 
-  // Calcul immédiat du temps estimé à l'ouverture
   updateLiveEstimatedTime();
 
-  // Écouteurs pour mettre à jour le temps en direct
   container.onchange = updateLiveEstimatedTime;
   document.getElementById('routine-rounds').oninput = updateLiveEstimatedTime;
 
@@ -254,14 +252,14 @@ function startRoutine(id) {
   loadStep();
 }
 
-// --- CHARGER L'ÉTAPE COURANTE (Mise en place initiale, Exercice ou Mise en place intermédiaire) ---
+// --- CHARGER L'ÉTAPE COURANTE ---
 function loadStep() {
   clearInterval(timerInterval);
   isPaused = false;
   document.getElementById('btn-pause').textContent = 'Pause';
 
   if (workflowState === 'initial_setup') {
-    timeLeft = 10; // 10 secondes pour se préparer au début
+    timeLeft = 10;
     document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
     
     const firstExId = activeRoutine.exerciseIds[0];
@@ -271,7 +269,7 @@ function loadStep() {
     document.getElementById('exercise-img').src = firstExData ? firstExData.img : "";
   } 
   else if (workflowState === 'mise_en_place') {
-    timeLeft = 15; // 15 secondes de mise en place entre les exercices
+    timeLeft = 15;
     document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
     
     const nextIndex = (currentIndex + 1) % activeRoutine.exerciseIds.length;
@@ -282,7 +280,6 @@ function loadStep() {
     document.getElementById('exercise-img').src = nextExData ? nextExData.img : "";
   } 
   else {
-    // Mode EXERCICE (30 secondes)
     timeLeft = 30;
     const exerciseId = activeRoutine.exerciseIds[currentIndex];
     const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
@@ -315,7 +312,6 @@ function loadStep() {
   }, 1000);
 }
 
-// --- GESTION DE LA FIN D'UNE ÉTAPE ---
 function handleTimerEnd() {
   if (workflowState === 'initial_setup') {
     workflowState = 'exercise';
@@ -342,7 +338,6 @@ function handleTimerEnd() {
   }
 }
 
-// --- BOUTON "SUIVANT" ---
 function nextStep() {
   clearInterval(timerInterval);
   handleTimerEnd();
