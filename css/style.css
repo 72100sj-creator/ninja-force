@@ -74,7 +74,7 @@ button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; 
 /* Agrandissement des images des cartes d'exercices */
 .exercise-card img,
 .exercise-image img {
-  width: 100%;
+  width: 200%;
   max-height: 280px; /* Augmente la hauteur de l'image */
   object-fit: contain; /* Conserve toute l'image visible sans la couper */
   background-color: #121212; /* Fond sombre pour faire ressortir le visuel */
