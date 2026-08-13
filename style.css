@@ -166,7 +166,7 @@ button {
   width: auto;
 }
 
-/* Gestion de l'ordre des exercices (v1.3) */
+/* Gestion de l'ordre des exercices */
 .ordered-exercises-container {
   display: flex;
   flex-direction: column;
@@ -199,6 +199,15 @@ button {
   color: #e50914;
   font-weight: bold;
   min-width: 20px;
+}
+
+.ordered-thumb {
+  width: 35px;
+  height: 35px;
+  border-radius: 4px;
+  object-fit: cover;
+  background-color: #121212;
+  border: 1px solid #444;
 }
 
 .ordered-name {
@@ -303,7 +312,7 @@ button {
   margin-top: 10px;
 }
 
-/* --- ÉCRAN DE BILAN / FIN DE SÉANCE (v1.3) --- */
+/* --- ÉCRAN DE BILAN / FIN DE SÉANCE --- */
 .completion-card {
   background: #1a1a1a;
   border: 1px solid #333;
