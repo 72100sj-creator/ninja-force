@@ -276,7 +276,8 @@ button {
   overflow-y: auto;
   margin-bottom: 15px;
   padding-right: 5px;
-}/* --- Style pour les conseils dans les fiches de la bibliothèque --- */
+}
+
 .exercise-tip {
   background: #221212;
   border-left: 4px solid #e50914;
@@ -286,7 +287,9 @@ button {
   text-align: left;
   font-size: 0.9rem;
   color: #ffcccc;
-/* --- Style pour l'encadré du temps estimé --- */
+}
+
+/* --- ENCADRÉ DU TEMPS ESTIMÉ --- */
 .estimated-time-box {
   background: #1a1a1a;
   border: 1px solid #e50914;
@@ -301,13 +304,12 @@ button {
 
 .estimated-time-box span {
   color: #e50914;
-}}
-/* --- PIED DE PAGE / VERSION --- */
-.app-footer {
+}
+
+/* --- VERSION DISCRÈTE SUR L'ACCUEIL --- */
+.home-version {
   text-align: center;
-  color: #666;
-  font-size: 0.75rem;
-  margin-top: 25px;
-  border-top: 1px solid #222;
-  padding-top: 12px;
+  color: #555;
+  font-size: 0.65rem;
+  margin-top: 15px;
 }
