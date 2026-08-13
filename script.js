@@ -45,6 +45,18 @@ const screens = {
   library: document.getElementById('library-screen')
 };
 
+// --- CALCUL DU TEMPS ESTIMÉ ---
+// 30s d'exercice + 15s de repos par exercice = 45s au total par exercice et par tour
+function calculateDurationText(rounds, exerciseCount) {
+  if (exerciseCount === 0) return "0 min";
+  const totalSeconds = rounds * exerciseCount * 45;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes === 0) return `${seconds}s`;
+  if (seconds === 0) return `${minutes} min`;
+  return `${minutes} min ${seconds}s`;
+}
+
 // --- FONCTION BIP SONORE ---
 function playBeep() {
   try {
@@ -52,15 +64,13 @@ function playBeep() {
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Fréquence de la note La
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
     gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
     oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.25); // Durée 250ms
-  } catch (e) {
-    // Sécurité si le navigateur bloque l'audio automatique
-  }
+    oscillator.stop(audioCtx.currentTime + 0.25);
+  } catch (e) {}
 }
 
 // --- INITIALISATION AU CHARGEMENT ---
@@ -75,18 +85,19 @@ function showScreen(screenName) {
   screens[screenName].style.display = 'block';
 }
 
-// --- AFFICHAGE DE LA LISTE DES SÉANCES ---
+// --- AFFICHAGE DE LA LISTE DES SÉANCES (AVEC TEMPS ESTIMÉ) ---
 function renderRoutinesList() {
   const container = document.getElementById('saved-routines-list');
   container.innerHTML = '';
 
   routines.forEach((routine) => {
+    const duration = calculateDurationText(routine.rounds, routine.exerciseIds.length);
     const card = document.createElement('div');
     card.className = 'routine-card';
     card.innerHTML = `
       <div>
         <h3>${routine.name}</h3>
-        <p>${routine.rounds} tours • ${routine.exerciseIds.length} exercices</p>
+        <p>${routine.rounds} tours • ${routine.exerciseIds.length} exercices • ⏱️ ~${duration}</p>
       </div>
       <div class="routine-card-actions">
         <button class="btn-primary start-routine-btn" data-id="${routine.id}">Lancer</button>
@@ -120,7 +131,7 @@ function initEventListeners() {
   document.getElementById('btn-home').addEventListener('click', () => showScreen('selector'));
 }
 
-// --- OUVRIR LE CRÉATEUR DE SÉANCE (VERSION COMPACTE ACTUELLE) ---
+// --- OUVRIR LE CRÉATEUR DE SÉANCE ---
 function openCreator() {
   document.getElementById('routine-name').value = '';
   document.getElementById('routine-rounds').value = 3;
@@ -133,7 +144,7 @@ function openCreator() {
     item.className = 'creator-exercise-item';
     item.innerHTML = `
       <label class="creator-checkbox-label">
-        <input type="checkbox" name="exercise-choice" value="${ex.id}" checked>
+        <input type="checkbox" name="exercise-choice" value="${ex.id}" checked class="exercise-cb">
         <span class="creator-exercise-name">${ex.name}</span>
       </label>
       <div class="creator-exercise-preview">
@@ -144,10 +155,27 @@ function openCreator() {
     container.appendChild(item);
   });
 
+  // Mettre à jour le temps estimé en direct
+  updateLiveEstimatedTime();
+
+  // Écouter les changements pour recalculer le temps en direct
+  document.getElementById('routine-rounds').addEventListener('input', updateLiveEstimatedTime);
+  document.querySelectorAll('.exercise-cb').forEach(cb => {
+    cb.addEventListener('change', updateLiveEstimatedTime);
+  });
+
   showScreen('creator');
 }
 
-// --- OUVRIR LA BIBLIOTHÈQUE DES FICHES (COMPLÈTES DEPUIS L'ACCUEIL) ---
+// --- METTRE À JOUR LE TEMPS ESTIMÉ DANS L'ÉDITEUR ---
+function updateLiveEstimatedTime() {
+  const rounds = parseInt(document.getElementById('routine-rounds').value, 10) || 1;
+  const checkedCount = document.querySelectorAll('input[name="exercise-choice"]:checked').length;
+  const timeText = calculateDurationText(rounds, checkedCount);
+  document.getElementById('estimated-time-display').textContent = timeText;
+}
+
+// --- OUVRIR LA BIBLIOTHÈQUE DES FICHES ---
 function openLibrary() {
   const container = document.getElementById('library-exercises-list');
   container.innerHTML = '';
@@ -265,13 +293,12 @@ function loadExercise() {
       timeLeft--;
       updateTimerDisplay();
       
-      // Bips d'avertissement sur les 3 dernières secondes
       if (timeLeft <= 3 && timeLeft > 0) {
         playBeep();
       }
 
       if (timeLeft <= 0) {
-        playBeep(); // Double bip ou bip de fin
+        playBeep();
         clearInterval(timerInterval);
         handleTimerEnd();
       }
@@ -279,7 +306,6 @@ function loadExercise() {
   }, 1000);
 }
 
-// --- FIN DU CHRONO ---
 function handleTimerEnd() {
   if (isResting) {
     isResting = false;
@@ -301,7 +327,6 @@ function handleTimerEnd() {
   }
 }
 
-// --- BOUTON SUIVANT ---
 function nextStep() {
   clearInterval(timerInterval);
   handleTimerEnd();
