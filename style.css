@@ -302,3 +302,12 @@ button {
 .estimated-time-box span {
   color: #e50914;
 }}
+/* --- PIED DE PAGE / VERSION --- */
+.app-footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.75rem;
+  margin-top: 25px;
+  border-top: 1px solid #222;
+  padding-top: 12px;
+}
