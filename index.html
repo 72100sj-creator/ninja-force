@@ -18,13 +18,12 @@
     <section id="routine-selector-screen" class="screen">
       <h2>Mes Séances</h2>
       
-      <!-- Liste des séances enregistrées -->
       <div id="saved-routines-list" class="routines-list">
         <!-- Les séances personnalisées s'afficheront ici -->
       </div>
 
-      <!-- Bouton pour créer une nouvelle séance -->
       <button id="btn-create-routine" class="btn-primary">Créer une nouvelle séance</button>
+      <button id="btn-library" class="btn-secondary">Fiches d'exercices (16)</button>
     </section>
 
     <!-- 2. Écran de création / personnalisation d'une séance -->
@@ -43,7 +42,7 @@
 
       <h3>Sélectionne tes exercices :</h3>
       <div id="exercise-checkboxes-list" class="exercises-checkbox-container">
-        <!-- La liste des exercices disponibles avec cases à cocher s'affichera ici -->
+        <!-- Liste des 16 exercices -->
       </div>
 
       <div class="creator-actions">
@@ -80,6 +79,15 @@
       <h2>🎉 Bravo Ninja !</h2>
       <p>Séance terminée avec succès !</p>
       <button id="btn-home" class="btn-primary">Retour aux séances</button>
+    </section>
+
+    <!-- 5. Écran de la bibliothèque / fiches d'exercices -->
+    <section id="library-screen" class="screen" style="display: none;">
+      <h2>Bibliothèque des fiches</h2>
+      <div id="library-exercises-list" class="library-container">
+        <!-- Les 16 fiches d'exercices s'afficheront ici -->
+      </div>
+      <button id="btn-library-back" class="btn-primary">Retour</button>
     </section>
   </div>
 
