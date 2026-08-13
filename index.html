@@ -26,7 +26,7 @@
       <button id="btn-library" class="btn-secondary">Fiches d'exercices (16)</button>
       
       <!-- Version uniquement sur l'accueil -->
-      <div class="home-version">v1.2</div>
+      <div class="home-version">v1.3</div>
     </section>
 
     <!-- 2. Écran de création / personnalisation d'une séance -->
@@ -47,9 +47,15 @@
         ⏱️ Durée estimée : <span id="estimated-time-display">0 min</span>
       </div>
 
+      <h3>Ordre des exercices :</h3>
+      <p style="font-size: 0.8rem; color: #888; margin-top: -5px;">Utilise les flèches pour réorganiser ta séance.</p>
+      <div id="ordered-exercises-list" class="ordered-exercises-container">
+        <!-- Liste ordonnée avec flèches haut/bas -->
+      </div>
+
       <h3>Sélectionne tes exercices :</h3>
       <div id="exercise-checkboxes-list" class="exercises-checkbox-container">
-        <!-- Liste des 16 exercices -->
+        <!-- Liste des 16 exercices à cocher -->
       </div>
 
       <div class="creator-actions">
@@ -81,11 +87,33 @@
       </div>
     </section>
 
-    <!-- 4. Écran de fin / félicitations -->
+    <!-- 4. Écran de fin / bilan -->
     <section id="completion-screen" class="screen" style="display: none;">
-      <h2>🎉 Bravo Ninja !</h2>
-      <p>Séance terminée avec succès !</p>
-      <button id="btn-home" class="btn-primary">Retour aux séances</button>
+      <div class="completion-card">
+        <h2>🥷 SÉANCE TERMINÉE !</h2>
+        <p style="color: #aaa; margin-top: -5px;">Bravo Ninja !</p>
+        
+        <div class="completion-stats">
+          <div class="stat-item">
+            <span>Durée :</span>
+            <strong id="stat-duration">0 min</strong>
+          </div>
+          <div class="stat-item">
+            <span>Exercices :</span>
+            <strong id="stat-exercises">0</strong>
+          </div>
+          <div class="stat-item">
+            <span>Tours :</span>
+            <strong id="stat-rounds">0</strong>
+          </div>
+          <div class="stat-item">
+            <span>Blocs réalisés :</span>
+            <strong id="stat-total">0</strong>
+          </div>
+        </div>
+
+        <button id="btn-home" class="btn-primary" style="margin-top: 15px;">TERMINER</button>
+      </div>
     </section>
 
     <!-- 5. Écran de la bibliothèque / fiches d'exercices -->
