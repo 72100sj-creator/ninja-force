@@ -1,21 +1,21 @@
-// --- BIBLIOTHÈQUE DES 16 EXERCICES ---
+// --- BIBLIOTHÈQUE DES 16 EXERCICES AVEC CONSEILS ---
 const ALL_EXERCISES = [
-  { id: 'squat', name: 'Squat', desc: 'Fléchis les genoux en gardant le dos droit.', img: 'assets/exercises/01-squat.jpg' },
-  { id: 'fentes', name: 'Fentes', desc: 'Pas en avant, fléchis les deux genoux à 90°.', img: 'assets/exercises/02-fentes.jpg' },
-  { id: 'pont', name: 'Pont fessier', desc: 'Allongé sur le dos, soulève le bassin vers le haut.', img: 'assets/exercises/03-pont.jpg' },
-  { id: 'pompes', name: 'Pompes', desc: 'Corps gainé, descends la poitrine vers le sol.', img: 'assets/exercises/04-pompes.jpg' },
-  { id: 'dips', name: 'Dips chaise', desc: 'Mains sur un support stable, fléchis et tends les bras.', img: 'assets/exercises/05-dips.jpg' },
-  { id: 'birddog', name: 'Bird Dog', desc: 'En appui quadrupedal, tends le bras et la jambe opposés.', img: 'assets/exercises/06-birddog.jpg' },
-  { id: 'ytw', name: 'YTW', desc: 'Mouvements des bras allongés sur le ventre pour le haut du dos.', img: 'assets/exercises/07-ytw.jpg' },
-  { id: 'planche', name: 'Planche / Gainage', desc: 'Appuis sur les avant-bras et pointes de pieds, corps aligné.', img: 'assets/exercises/08-planche.jpg' },
-  { id: 'planchelat', name: 'Planche latérale', desc: 'En appui sur un seul avant-bras, corps de profil bien aligné.', img: 'assets/exercises/09-planchelat.jpg' },
-  { id: 'deadbug', name: 'Dead Bug', desc: 'Sur le dos, descends alternativement bras et jambe opposés.', img: 'assets/exercises/10-deadbug.jpg' },
-  { id: 'pike', name: 'Pike Push-ups', desc: 'Pompes inclinées fesses en l’air pour cibler les épaules.', img: 'assets/exercises/11-pike.jpg' },
-  { id: 'commando', name: 'Commando', desc: 'Transition dynamique entre planche sur les coudes et sur les mains.', img: 'assets/exercises/12-commando.jpg' },
-  { id: 'mollets', name: 'Mollets', desc: 'Élévations sur la pointe des pieds pour renforcer les mollets.', img: 'assets/exercises/13-mollets.jpg' },
-  { id: 'climbers', name: 'Mountain Climbers', desc: 'En position de planche, ramène alternativement les genoux vers la poitrine.', img: 'assets/exercises/14-climbers.jpg' },
-  { id: 'jacks', name: 'Jumping Jacks', desc: 'Saut écarté avec élévation des bras pour dynamiser le rythme.', img: 'assets/exercises/15-jacks.jpg' },
-  { id: 'genoux', name: 'Montées de genoux', desc: 'Sur place, monte les genoux alternativement vers la poitrine.', img: 'assets/exercises/16-genoux.jpg' }
+  { id: 'squat', name: 'Squat', desc: 'Fléchis les genoux en gardant le dos droit.', tip: 'Garde bien le poids sur les talons et la poitrine ouverte.', img: 'assets/exercises/01-squat.jpg' },
+  { id: 'fentes', name: 'Fentes', desc: 'Pas en avant, fléchis les deux genoux à 90°.', tip: 'Ne touche pas le genou arrière violemment par terre.', img: 'assets/exercises/02-fentes.jpg' },
+  { id: 'pont', name: 'Pont fessier', desc: 'Allongé sur le dos, soulève le bassin vers le haut.', tip: 'Contracte bien les fessiers et maintiens 1 seconde en haut.', img: 'assets/exercises/03-pont.jpg' },
+  { id: 'pompes', name: 'Pompes', desc: 'Corps gainé, descends la poitrine vers le sol.', tip: 'Garde les coudes près du corps pour protéger tes épaules.', img: 'assets/exercises/04-pompes.jpg' },
+  { id: 'dips', name: 'Dips chaise', desc: 'Mains sur un support stable, fléchis et tends les bras.', tip: 'Garde le dos près du support et fléchis les bras à 90°.', img: 'assets/exercises/05-dips.jpg' },
+  { id: 'birddog', name: 'Bird Dog', desc: 'En appui quadrupedal, tends le bras et la jambe opposés.', tip: 'Ne creuse pas le dos, cherche l’alignement parfait.', img: 'assets/exercises/06-birddog.jpg' },
+  { id: 'ytw', name: 'YTW', desc: 'Mouvements des bras allongés sur le ventre pour le haut du dos.', tip: 'Serre les omoplates, fais un mouvement lent et contrôlé.', img: 'assets/exercises/07-ytw.jpg' },
+  { id: 'planche', name: 'Planche / Gainage', desc: 'Appuis sur les avant-bras et pointes de pieds, corps aligné.', tip: 'Aspire le ventre et aligne la tête, le bassin et les talons.', img: 'assets/exercises/08-planche.jpg' },
+  { id: 'planchelat', name: 'Planche latérale', desc: 'En appui sur un seul avant-bras, corps de profil bien aligné.', tip: 'Repousse bien le sol avec l’avant-bras pour ne pas t’affaisser.', img: 'assets/exercises/09-planchelat.jpg' },
+  { id: 'deadbug', name: 'Dead Bug', desc: 'Sur le dos, descends alternativement bras et jambe opposés.', tip: 'Plaque fermement le bas du dos contre le sol en permanence.', img: 'assets/exercises/10-deadbug.jpg' },
+  { id: 'pike', name: 'Pike Push-ups', desc: 'Pompes inclinées fesses en l’air pour cibler les épaules.', tip: 'Regarde entre tes pieds et pousse le sol vers le haut.', img: 'assets/exercises/11-pike.jpg' },
+  { id: 'commando', name: 'Commando', desc: 'Transition dynamique entre planche sur les coudes et sur les mains.', tip: 'Garde les hanches stables, évite de te balancer de gauche à droite.', img: 'assets/exercises/12-commando.jpg' },
+  { id: 'mollets', name: 'Mollets', desc: 'Élévations sur la pointe des pieds pour renforcer les mollets.', tip: 'Monte le plus haut possible sur la pointe des pieds.', img: 'assets/exercises/13-mollets.jpg' },
+  { id: 'climbers', name: 'Mountain Climbers', desc: 'En position de planche, ramène alternativement les genoux vers la poitrine.', tip: 'Garde les épaules bien au-dessus des mains, rythme régulier.', img: 'assets/exercises/14-climbers.jpg' },
+  { id: 'jacks', name: 'Jumping Jacks', desc: 'Saut écarté avec élévation des bras pour dynamiser le rythme.', tip: 'Amortis bien tes sauts sur l’avant des pieds.', img: 'assets/exercises/15-jacks.jpg' },
+  { id: 'genoux', name: 'Montées de genoux', desc: 'Sur place, monte les genoux alternativement vers la poitrine.', tip: 'Garde le buste droit et monte les genoux à hauteur de bassin.', img: 'assets/exercises/16-genoux.jpg' }
 ];
 
 // --- ÉTAT DE L'APPLICATION ---
@@ -34,7 +34,7 @@ let currentIndex = 0;
 let timerInterval = null;
 let timeLeft = 30;
 let isPaused = false;
-let isResting = false; // Indique si on est en temps de repos
+let isResting = false;
 
 // --- SÉLECTION DES ÉLÉMENTS HTML ---
 const screens = {
@@ -44,6 +44,24 @@ const screens = {
   completion: document.getElementById('completion-screen'),
   library: document.getElementById('library-screen')
 };
+
+// --- FONCTION BIP SONORE ---
+function playBeep() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Fréquence de la note La
+    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.25); // Durée 250ms
+  } catch (e) {
+    // Sécurité si le navigateur bloque l'audio automatique
+  }
+}
 
 // --- INITIALISATION AU CHARGEMENT ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -102,7 +120,7 @@ function initEventListeners() {
   document.getElementById('btn-home').addEventListener('click', () => showScreen('selector'));
 }
 
-// --- OUVRIR LE CRÉATEUR DE SÉANCE ---
+// --- OUVRIR LE CRÉATEUR DE SÉANCE (VERSION COMPACTE ACTUELLE) ---
 function openCreator() {
   document.getElementById('routine-name').value = '';
   document.getElementById('routine-rounds').value = 3;
@@ -129,7 +147,7 @@ function openCreator() {
   showScreen('creator');
 }
 
-// --- OUVRIR LA BIBLIOTHÈQUE DES FICHES ---
+// --- OUVRIR LA BIBLIOTHÈQUE DES FICHES (COMPLÈTES DEPUIS L'ACCUEIL) ---
 function openLibrary() {
   const container = document.getElementById('library-exercises-list');
   container.innerHTML = '';
@@ -142,7 +160,8 @@ function openLibrary() {
       <div class="exercise-image">
         <img src="${ex.img}" alt="${ex.name}">
       </div>
-      <p>${ex.desc}</p>
+      <p><strong>Description :</strong> ${ex.desc}</p>
+      <p class="exercise-tip">💡 <strong>Conseil Ninja :</strong> ${ex.tip}</p>
     `;
     container.appendChild(card);
   });
@@ -217,11 +236,9 @@ function loadExercise() {
   document.getElementById('btn-pause').textContent = 'Pause';
 
   if (isResting) {
-    // Mode REPOS (15 secondes)
     timeLeft = 15;
     document.getElementById('exercise-name').textContent = "⏱️ REPOS";
     
-    // Trouver le prochain exercice pour l'afficher
     const nextIndex = (currentIndex + 1) % activeRoutine.exerciseIds.length;
     const nextExId = activeRoutine.exerciseIds[nextIndex];
     const nextExData = ALL_EXERCISES.find(e => e.id === nextExId);
@@ -229,7 +246,6 @@ function loadExercise() {
     document.getElementById('exercise-desc').textContent = nextExData ? `Prochain exercice : ${nextExData.name}` : "Prépare-toi !";
     document.getElementById('exercise-img').src = nextExData ? nextExData.img : "";
   } else {
-    // Mode EXERCICE (30 secondes)
     timeLeft = 30;
     const exerciseId = activeRoutine.exerciseIds[currentIndex];
     const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
@@ -248,7 +264,14 @@ function loadExercise() {
     if (!isPaused) {
       timeLeft--;
       updateTimerDisplay();
+      
+      // Bips d'avertissement sur les 3 dernières secondes
+      if (timeLeft <= 3 && timeLeft > 0) {
+        playBeep();
+      }
+
       if (timeLeft <= 0) {
+        playBeep(); // Double bip ou bip de fin
         clearInterval(timerInterval);
         handleTimerEnd();
       }
@@ -256,19 +279,16 @@ function loadExercise() {
   }, 1000);
 }
 
-// --- QUAND LE CHRONO ARRIVE À ZÉRO ---
+// --- FIN DU CHRONO ---
 function handleTimerEnd() {
   if (isResting) {
-    // Fin du repos -> on passe à l'exercice suivant
     isResting = false;
     currentIndex++;
 
-    // Vérifier si on a bouclé tous les exercices du tour
     if (currentIndex >= activeRoutine.exerciseIds.length) {
       currentIndex = 0;
       currentRound++;
 
-      // Vérifier si tous les tours sont terminés
       if (currentRound > activeRoutine.rounds) {
         showScreen('completion');
         return;
@@ -276,13 +296,12 @@ function handleTimerEnd() {
     }
     loadExercise();
   } else {
-    // Fin de l'exercice -> on déclenche le temps de repos
     isResting = true;
     loadExercise();
   }
 }
 
-// --- BOUTON "SUIVANT" ---
+// --- BOUTON SUIVANT ---
 function nextStep() {
   clearInterval(timerInterval);
   handleTimerEnd();
