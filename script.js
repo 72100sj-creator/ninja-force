@@ -1,4 +1,4 @@
-// --- BIBLIOTHÈQUE DES 16 EXERCICES AVEC TES VRAIS NOMS DE FICHIERS ---
+// --- BIBLIOTHÈQUE DES 16 EXERCICES ---
 const ALL_EXERCISES = [
   { id: 'squat', name: 'Squat', desc: 'Fléchis les genoux en gardant le dos droit.', img: 'assets/exercises/01-squat.jpg' },
   { id: 'fentes', name: 'Fentes', desc: 'Pas en avant, fléchis les deux genoux à 90°.', img: 'assets/exercises/02-fentes.jpg' },
@@ -101,22 +101,28 @@ function initEventListeners() {
   document.getElementById('btn-home').addEventListener('click', () => showScreen('selector'));
 }
 
-// --- OUVRIR LE CRÉATEUR DE SÉANCE ---
+// --- OUVRIR LE CRÉATEUR DE SÉANCE (AVEC LES FICHES VISUELLES) ---
 function openCreator() {
   document.getElementById('routine-name').value = '';
   document.getElementById('routine-rounds').value = 3;
   
-  const checkboxContainer = document.getElementById('exercise-checkboxes-list');
-  checkboxContainer.innerHTML = '';
+  const container = document.getElementById('exercise-checkboxes-list');
+  container.innerHTML = '';
 
   ALL_EXERCISES.forEach(ex => {
-    const label = document.createElement('label');
-    label.className = 'checkbox-label';
-    label.innerHTML = `
-      <input type="checkbox" name="exercise-choice" value="${ex.id}" checked>
-      ${ex.name}
+    const item = document.createElement('div');
+    item.className = 'creator-exercise-item';
+    item.innerHTML = `
+      <label class="creator-checkbox-label">
+        <input type="checkbox" name="exercise-choice" value="${ex.id}" checked>
+        <span class="creator-exercise-name">${ex.name}</span>
+      </label>
+      <div class="creator-exercise-preview">
+        <img src="${ex.img}" alt="${ex.name}">
+        <p>${ex.desc}</p>
+      </div>
     `;
-    checkboxContainer.appendChild(label);
+    container.appendChild(item);
   });
 
   showScreen('creator');
