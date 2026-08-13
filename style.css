@@ -286,4 +286,19 @@ button {
   text-align: left;
   font-size: 0.9rem;
   color: #ffcccc;
+/* --- Style pour l'encadré du temps estimé --- */
+.estimated-time-box {
+  background: #1a1a1a;
+  border: 1px solid #e50914;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
 }
+
+.estimated-time-box span {
+  color: #e50914;
+}}
