@@ -1,21 +1,21 @@
-// --- BIBLIOTHÈQUE COMPLÈTE DES 16 EXERCICES ---
+// --- BIBLIOTHÈQUE DES 16 EXERCICES AVEC TES VRAIS NOMS DE FICHIERS ---
 const ALL_EXERCISES = [
   { id: 'squat', name: 'Squat', desc: 'Fléchis les genoux en gardant le dos droit.', img: 'assets/exercises/01-squat.jpg' },
-  { id: 'pompes', name: 'Pompes', desc: 'Corps gainé, descends la poitrine vers le sol.', img: 'assets/exercises/02-pompes.jpg' },
-  { id: 'fentes', name: 'Fentes', desc: 'Pas en avant, fléchis les deux genoux à 90°.', img: 'assets/exercises/03-fentes.jpg' },
-  { id: 'gainage', name: 'Planche / Gainage', desc: 'Appuis sur les avant-bras et pointes de pieds, corps aligné.', img: 'assets/exercises/04-gainage.jpg' },
-  { id: 'burpees', name: 'Burpees', desc: 'Squat, planche, pompes, puis saut vertical.', img: 'assets/exercises/05-burpees.jpg' },
-  { id: 'ciseaux', name: 'Ciseaux abdos', desc: 'Allongé sur le dos, bats des jambes en gardant les abdos serrés.', img: 'assets/exercises/06-ciseaux.jpg' },
-  { id: 'dips', name: 'Dips chaise', desc: 'Mains sur un support stable, fléchis et tends les bras.', img: 'assets/exercises/07-dips.jpg' },
-  { id: 'mtn', name: 'Mountain Climbers', desc: 'En position de planche, ramène alternativement les genoux vers la poitrine.', img: 'assets/exercises/08-mountain-climbers.jpg' },
-  { id: 'torsion', name: 'Torsion allongée', desc: 'Allongé, bascule les genoux d’un côté pour étirer le dos.', img: 'assets/exercises/09-torsion.jpg' },
-  { id: 'bird-dog', name: 'Bird Dog', desc: 'En appui quadrupedal, tends le bras opposé et la jambe opposée.', img: 'assets/exercises/10-bird-dog.jpg' },
-  { id: 'enfant', name: 'Posture de l’enfant', desc: 'À genoux, assieds-toi sur tes talons en étirant les bras loin devant.', img: 'assets/exercises/11-enfant.jpg' },
-  { id: 'cobra', name: 'Cobra', desc: 'À plat ventre, redresse le buste en contractant le dos.', img: 'assets/exercises/12-cobra.jpg' },
-  { id: 'chien-tete-en-bas', name: 'Chien tête en bas', desc: 'Forme un V inversé avec le corps, talons vers le sol.', img: 'assets/exercises/13-chien-tete-en-bas.jpg' },
-  { id: 'dead-bug', name: 'Dead Bug', desc: 'Sur le dos, descends alternativement bras et jambe opposés sans creuser le dos.', img: 'assets/exercises/14-dead-bug.jpg' },
-  { id: 'pike-pushups', name: 'Pike Push-ups', desc: 'Pompes inclinées fesses en l’air pour cibler les épaules.', img: 'assets/exercises/15-pike-pushups.jpg' },
-  { id: 'planche-laterale', name: 'Planche latérale', desc: 'En appui sur un seul avant-bras, corps de profil bien aligné.', img: 'assets/exercises/16-planche-laterale.jpg' }
+  { id: 'fentes', name: 'Fentes', desc: 'Pas en avant, fléchis les deux genoux à 90°.', img: 'assets/exercises/02-fentes.jpg' },
+  { id: 'pont', name: 'Pont fessier', desc: 'Allongé sur le dos, soulève le bassin vers le haut.', img: 'assets/exercises/03-pont.jpg' },
+  { id: 'pompes', name: 'Pompes', desc: 'Corps gainé, descends la poitrine vers le sol.', img: 'assets/exercises/04-pompes.jpg' },
+  { id: 'dips', name: 'Dips chaise', desc: 'Mains sur un support stable, fléchis et tends les bras.', img: 'assets/exercises/05-dips.jpg' },
+  { id: 'birddog', name: 'Bird Dog', desc: 'En appui quadrupedal, tends le bras et la jambe opposés.', img: 'assets/exercises/06-birddog.jpg' },
+  { id: 'ytw', name: 'YTW', desc: 'Mouvements des bras allongés sur le ventre pour le haut du dos.', img: 'assets/exercises/07-ytw.jpg' },
+  { id: 'planche', name: 'Planche / Gainage', desc: 'Appuis sur les avant-bras et pointes de pieds, corps aligné.', img: 'assets/exercises/08-planche.jpg' },
+  { id: 'planchelat', name: 'Planche latérale', desc: 'En appui sur un seul avant-bras, corps de profil bien aligné.', img: 'assets/exercises/09-planchelat.jpg' },
+  { id: 'deadbug', name: 'Dead Bug', desc: 'Sur le dos, descends alternativement bras et jambe opposés.', img: 'assets/exercises/10-deadbug.jpg' },
+  { id: 'pike', name: 'Pike Push-ups', desc: 'Pompes inclinées fesses en l’air pour cibler les épaules.', img: 'assets/exercises/11-pike.jpg' },
+  { id: 'commando', name: 'Commando', desc: 'Transition dynamique entre planche sur les coudes et sur les mains.', img: 'assets/exercises/12-commando.jpg' },
+  { id: 'mollets', name: 'Mollets', desc: 'Élévations sur la pointe des pieds pour renforcer les mollets.', img: 'assets/exercises/13-mollets.jpg' },
+  { id: 'climbers', name: 'Mountain Climbers', desc: 'En position de planche, ramène alternativement les genoux vers la poitrine.', img: 'assets/exercises/14-climbers.jpg' },
+  { id: 'jacks', name: 'Jumping Jacks', desc: 'Saut écarté avec élévation des bras pour dynamiser le rythme.', img: 'assets/exercises/15-jacks.jpg' },
+  { id: 'genoux', name: 'Montées de genoux', desc: 'Sur place, monte les genoux alternativement vers la poitrine.', img: 'assets/exercises/16-genoux.jpg' }
 ];
 
 // --- ÉTAT DE L'APPLICATION ---
@@ -24,7 +24,7 @@ let routines = JSON.parse(localStorage.getItem('ninja_routines')) || [
     id: 'default-routine',
     name: 'Routine Ninja Classique',
     rounds: 3,
-    exerciseIds: ['squat', 'pompes', 'fentes', 'gainage']
+    exerciseIds: ['squat', 'pompes', 'fentes', 'planche']
   }
 ];
 
