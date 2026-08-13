@@ -80,4 +80,14 @@ button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; 
   background-color: #121212; /* Fond sombre pour faire ressortir le visuel */
   border-radius: 8px;
   padding: 8px;
-}
+/* Correction de la taille et de la largeur du bouton d'abandon */
+.btn-abandon,
+button.abandon,
+.btn-secondary {
+  max-width: 90% !important;   /* Empêche le bouton de dépasser de l'écran */
+  width: auto !important;      /* Adapte la largeur au texte sans forcer */
+  padding: 10px 16px;          /* Réduit légèrement l'espace autour du texte */
+  font-size: 0.9rem;           /* Règle la taille du texte pour qu'il reste lisible */
+  box-sizing: border-box;      /* Inclut les bordures dans la largeur totale */
+  margin: 10px auto !important;/* Centre le bouton avec un peu d'espace autour */
+}}
