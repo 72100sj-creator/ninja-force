@@ -34,7 +34,7 @@ let currentIndex = 0;
 let timerInterval = null;
 let timeLeft = 30;
 let isPaused = false;
-let isResting = false;
+let workflowState = 'initial_setup'; // 'initial_setup', 'exercise', 'mise_en_place'
 
 // --- SÉLECTION DES ÉLÉMENTS HTML ---
 const screens = {
@@ -45,11 +45,10 @@ const screens = {
   library: document.getElementById('library-screen')
 };
 
-// --- CALCUL DU TEMPS ESTIMÉ ---
-// 30s d'exercice + 15s de repos par exercice = 45s au total par exercice et par tour
+// --- CALCUL DU TEMPS ESTIMÉ (10s initial + 30s effort + 15s mise en place par exercice) ---
 function calculateDurationText(rounds, exerciseCount) {
   if (exerciseCount === 0) return "0 min";
-  const totalSeconds = rounds * exerciseCount * 45;
+  const totalSeconds = 10 + (rounds * exerciseCount * (30 + 15));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   if (minutes === 0) return `${seconds}s`;
@@ -85,7 +84,7 @@ function showScreen(screenName) {
   screens[screenName].style.display = 'block';
 }
 
-// --- AFFICHAGE DE LA LISTE DES SÉANCES (AVEC TEMPS ESTIMÉ) ---
+// --- AFFICHAGE DE LA LISTE DES SÉANCES ---
 function renderRoutinesList() {
   const container = document.getElementById('saved-routines-list');
   container.innerHTML = '';
@@ -155,19 +154,17 @@ function openCreator() {
     container.appendChild(item);
   });
 
-  // Mettre à jour le temps estimé en direct
+  // Calcul immédiat du temps estimé à l'ouverture
   updateLiveEstimatedTime();
 
-  // Écouter les changements pour recalculer le temps en direct
-  document.getElementById('routine-rounds').addEventListener('input', updateLiveEstimatedTime);
-  document.querySelectorAll('.exercise-cb').forEach(cb => {
-    cb.addEventListener('change', updateLiveEstimatedTime);
-  });
+  // Écouteurs pour mettre à jour le temps en direct
+  container.onchange = updateLiveEstimatedTime;
+  document.getElementById('routine-rounds').oninput = updateLiveEstimatedTime;
 
   showScreen('creator');
 }
 
-// --- METTRE À JOUR LE TEMPS ESTIMÉ DANS L'ÉDITEUR ---
+// --- METTRE À JOUR LE TEMPS ESTIMÉ EN DIRECT ---
 function updateLiveEstimatedTime() {
   const rounds = parseInt(document.getElementById('routine-rounds').value, 10) || 1;
   const checkedCount = document.querySelectorAll('input[name="exercise-choice"]:checked').length;
@@ -250,22 +247,32 @@ function startRoutine(id) {
 
   currentRound = 1;
   currentIndex = 0;
-  isResting = false;
+  workflowState = 'initial_setup';
 
   document.getElementById('current-routine-title').textContent = activeRoutine.name;
   showScreen('workout');
-  loadExercise();
+  loadStep();
 }
 
-// --- CHARGER L'EXERCICE OU LE REPOS ---
-function loadExercise() {
+// --- CHARGER L'ÉTAPE COURANTE (Mise en place initiale, Exercice ou Mise en place intermédiaire) ---
+function loadStep() {
   clearInterval(timerInterval);
   isPaused = false;
   document.getElementById('btn-pause').textContent = 'Pause';
 
-  if (isResting) {
-    timeLeft = 15;
-    document.getElementById('exercise-name').textContent = "⏱️ REPOS";
+  if (workflowState === 'initial_setup') {
+    timeLeft = 10; // 10 secondes pour se préparer au début
+    document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
+    
+    const firstExId = activeRoutine.exerciseIds[0];
+    const firstExData = ALL_EXERCISES.find(e => e.id === firstExId);
+    
+    document.getElementById('exercise-desc').textContent = firstExData ? `Premier exercice : ${firstExData.name}` : "Prépare-toi !";
+    document.getElementById('exercise-img').src = firstExData ? firstExData.img : "";
+  } 
+  else if (workflowState === 'mise_en_place') {
+    timeLeft = 15; // 15 secondes de mise en place entre les exercices
+    document.getElementById('exercise-name').textContent = "⏱️ Mise en place";
     
     const nextIndex = (currentIndex + 1) % activeRoutine.exerciseIds.length;
     const nextExId = activeRoutine.exerciseIds[nextIndex];
@@ -273,7 +280,9 @@ function loadExercise() {
     
     document.getElementById('exercise-desc').textContent = nextExData ? `Prochain exercice : ${nextExData.name}` : "Prépare-toi !";
     document.getElementById('exercise-img').src = nextExData ? nextExData.img : "";
-  } else {
+  } 
+  else {
+    // Mode EXERCICE (30 secondes)
     timeLeft = 30;
     const exerciseId = activeRoutine.exerciseIds[currentIndex];
     const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
@@ -306,9 +315,14 @@ function loadExercise() {
   }, 1000);
 }
 
+// --- GESTION DE LA FIN D'UNE ÉTAPE ---
 function handleTimerEnd() {
-  if (isResting) {
-    isResting = false;
+  if (workflowState === 'initial_setup') {
+    workflowState = 'exercise';
+    loadStep();
+  } 
+  else if (workflowState === 'mise_en_place') {
+    workflowState = 'exercise';
     currentIndex++;
 
     if (currentIndex >= activeRoutine.exerciseIds.length) {
@@ -320,13 +334,15 @@ function handleTimerEnd() {
         return;
       }
     }
-    loadExercise();
-  } else {
-    isResting = true;
-    loadExercise();
+    loadStep();
+  } 
+  else {
+    workflowState = 'mise_en_place';
+    loadStep();
   }
 }
 
+// --- BOUTON "SUIVANT" ---
 function nextStep() {
   clearInterval(timerInterval);
   handleTimerEnd();
