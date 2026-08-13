@@ -19,11 +19,14 @@
       <h2>Mes Séances</h2>
       
       <div id="saved-routines-list" class="routines-list">
-        <!-- Les séances personnalisées s'afficheront ici avec leur durée -->
+        <!-- Les séances personnalisées s'afficheront ici -->
       </div>
 
       <button id="btn-create-routine" class="btn-primary">Créer une nouvelle séance</button>
       <button id="btn-library" class="btn-secondary">Fiches d'exercices (16)</button>
+      
+      <!-- Version uniquement sur l'accueil -->
+      <div class="home-version">v1.2</div>
     </section>
 
     <!-- 2. Écran de création / personnalisation d'une séance -->
@@ -40,7 +43,6 @@
         <input type="number" id="routine-rounds" value="3" min="1" max="10">
       </div>
 
-      <!-- Affichage de la durée estimée en direct -->
       <div id="estimated-time-box" class="estimated-time-box">
         ⏱️ Durée estimée : <span id="estimated-time-display">0 min</span>
       </div>
@@ -95,15 +97,7 @@
       <button id="btn-library-back" class="btn-primary">Retour</button>
     </section>
   </div>
-<!-- Pied de page avec la version -->
-    <footer class="app-footer">
-      v1.2
-    </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
-<!-- En-tête de l'application -->
-    <header>
-      <h1>🥷 NINJA FORCE</h1>
-      <p style="text-align: center; color: #888; font-size: 0.85rem; margin-top: -15px; margin-bottom: 20px;">v1.2</p>
-    </header>
