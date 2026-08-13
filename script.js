@@ -34,6 +34,7 @@ let currentIndex = 0;
 let timerInterval = null;
 let timeLeft = 30;
 let isPaused = false;
+let isResting = false; // Indique si on est en temps de repos
 
 // --- SÉLECTION DES ÉLÉMENTS HTML ---
 const screens = {
@@ -96,12 +97,12 @@ function initEventListeners() {
   document.getElementById('btn-library-back').addEventListener('click', () => showScreen('selector'));
 
   document.getElementById('btn-pause').addEventListener('click', togglePause);
-  document.getElementById('btn-next').addEventListener('click', nextExercise);
+  document.getElementById('btn-next').addEventListener('click', nextStep);
   document.getElementById('btn-abandon').addEventListener('click', abandonWorkout);
   document.getElementById('btn-home').addEventListener('click', () => showScreen('selector'));
 }
 
-// --- OUVRIR LE CRÉATEUR DE SÉANCE (AVEC LES FICHES VISUELLES) ---
+// --- OUVRIR LE CRÉATEUR DE SÉANCE ---
 function openCreator() {
   document.getElementById('routine-name').value = '';
   document.getElementById('routine-rounds').value = 3;
@@ -202,28 +203,45 @@ function startRoutine(id) {
 
   currentRound = 1;
   currentIndex = 0;
+  isResting = false;
 
   document.getElementById('current-routine-title').textContent = activeRoutine.name;
   showScreen('workout');
   loadExercise();
 }
 
-// --- CHARGER L'EXERCICE COURANT ---
+// --- CHARGER L'EXERCICE OU LE REPOS ---
 function loadExercise() {
-  const exerciseId = activeRoutine.exerciseIds[currentIndex];
-  const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
-
-  if (!exerciseData) return;
-
-  document.getElementById('exercise-name').textContent = exerciseData.name;
-  document.getElementById('exercise-desc').textContent = exerciseData.desc;
-  document.getElementById('exercise-img').src = exerciseData.img;
-  document.getElementById('round-counter').textContent = `Tour ${currentRound}/${activeRoutine.rounds}`;
-
   clearInterval(timerInterval);
-  timeLeft = 30;
   isPaused = false;
   document.getElementById('btn-pause').textContent = 'Pause';
+
+  if (isResting) {
+    // Mode REPOS (15 secondes)
+    timeLeft = 15;
+    document.getElementById('exercise-name').textContent = "⏱️ REPOS";
+    
+    // Trouver le prochain exercice pour l'afficher
+    const nextIndex = (currentIndex + 1) % activeRoutine.exerciseIds.length;
+    const nextExId = activeRoutine.exerciseIds[nextIndex];
+    const nextExData = ALL_EXERCISES.find(e => e.id === nextExId);
+    
+    document.getElementById('exercise-desc').textContent = nextExData ? `Prochain exercice : ${nextExData.name}` : "Prépare-toi !";
+    document.getElementById('exercise-img').src = nextExData ? nextExData.img : "";
+  } else {
+    // Mode EXERCICE (30 secondes)
+    timeLeft = 30;
+    const exerciseId = activeRoutine.exerciseIds[currentIndex];
+    const exerciseData = ALL_EXERCISES.find(e => e.id === exerciseId);
+
+    if (!exerciseData) return;
+
+    document.getElementById('exercise-name').textContent = exerciseData.name;
+    document.getElementById('exercise-desc').textContent = exerciseData.desc;
+    document.getElementById('exercise-img').src = exerciseData.img;
+  }
+
+  document.getElementById('round-counter').textContent = `Tour ${currentRound}/${activeRoutine.rounds}`;
   updateTimerDisplay();
 
   timerInterval = setInterval(() => {
@@ -232,10 +250,42 @@ function loadExercise() {
       updateTimerDisplay();
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
-        nextExercise();
+        handleTimerEnd();
       }
     }
   }, 1000);
+}
+
+// --- QUAND LE CHRONO ARRIVE À ZÉRO ---
+function handleTimerEnd() {
+  if (isResting) {
+    // Fin du repos -> on passe à l'exercice suivant
+    isResting = false;
+    currentIndex++;
+
+    // Vérifier si on a bouclé tous les exercices du tour
+    if (currentIndex >= activeRoutine.exerciseIds.length) {
+      currentIndex = 0;
+      currentRound++;
+
+      // Vérifier si tous les tours sont terminés
+      if (currentRound > activeRoutine.rounds) {
+        showScreen('completion');
+        return;
+      }
+    }
+    loadExercise();
+  } else {
+    // Fin de l'exercice -> on déclenche le temps de repos
+    isResting = true;
+    loadExercise();
+  }
+}
+
+// --- BOUTON "SUIVANT" ---
+function nextStep() {
+  clearInterval(timerInterval);
+  handleTimerEnd();
 }
 
 function updateTimerDisplay() {
@@ -248,23 +298,6 @@ function updateTimerDisplay() {
 function togglePause() {
   isPaused = !isPaused;
   document.getElementById('btn-pause').textContent = isPaused ? 'Reprendre' : 'Pause';
-}
-
-function nextExercise() {
-  clearInterval(timerInterval);
-  currentIndex++;
-
-  if (currentIndex >= activeRoutine.exerciseIds.length) {
-    currentIndex = 0;
-    currentRound++;
-
-    if (currentRound > activeRoutine.rounds) {
-      showScreen('completion');
-      return;
-    }
-  }
-
-  loadExercise();
 }
 
 function abandonWorkout() {
