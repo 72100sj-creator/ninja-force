@@ -6,6 +6,10 @@
     <title>Ninja Force V1.4.1</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Ninja Force">
 </head>
 <body>
     <!-- EN-TÊTE -->
@@ -18,6 +22,7 @@
         <h2>Mes Routines</h2>
         <div id="routines-list" class="routines-container"></div>
         <button class="btn-primary mt-20" onclick="App.openBuilder()">+ Créer une Routine</button>
+        <button class="btn-secondary mt-20" onclick="App.showScreen('screen-history')">🕒 Historique des séances</button>
     </section>
 
     <!-- ÉCRAN : CONSTRUCTEUR -->
@@ -88,6 +93,13 @@
         </div>
 
         <button class="btn-primary mt-20" onclick="App.showScreen('screen-home')">TERMINER</button>
+    </section>
+
+    <!-- ÉCRAN : HISTORIQUE -->
+    <section id="screen-history" class="screen">
+        <h2>Historique des séances</h2>
+        <div id="history-list"></div>
+        <button class="btn-secondary mt-20" onclick="App.showScreen('screen-home')">Retour</button>
     </section>
 
     <script src="js/data.js"></script>
