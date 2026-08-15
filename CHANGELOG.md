@@ -1,4 +1,22 @@
-# Historique des modifications (Changelog) - NINJA FORCE
+# Changelog Ninja Force
+
+## [V1.4] - Stabilisation Tests IRL
+- Restructuration totale du déroulement des séances (State Machine).
+- Correction de l'exercice sauté en début de séance.
+- Correction stricte du comptage des tours (empêche les tours "4/3").
+- Arrêt et transition fiables vers l'écran de fin après le dernier exercice.
+- Ajout d'une récupération stricte de 60 secondes entre les tours.
+- Ajout d'un décompte de préparation (10s) avant le premier exercice.
+- Affichage permanent de la progression (Tour X/Y, Exercice X/Y).
+- Correction du statut "Mise en place" bloqué (synchronisé avec l'état réel).
+- Suppression du bouton "Suivant" manuel inutile.
+- Affichage de la liste des exercices directement sur les fiches routines.
+- Ajout de la modification complète des routines existantes (sans suppression).
+- Ajout de l'ordre personnalisable des exercices (boutons ↑/↓) dans le constructeur.
+- Mise à jour de la description de l'exercice YTW.
+- Remplacement des MP3 par Web Audio API pour garantir les sons sur iPhone/iOS.
+- Ajout du Wake Lock pour empêcher la mise en veille de l'écran pendant l'effort.
+- Mise à jour de la charte graphique : tons sombres / or Ninja (plus premium).
 
 ## [1.3.2] - 2026-08-13
 
