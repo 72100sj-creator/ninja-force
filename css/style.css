@@ -1,227 +1,71 @@
-/* --- STYLE GÉNÉRAL NINJA FORCE --- */
-body {
-  background-color: #0d0d0d;
-  color: #f0f0f0;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+/* PALETTE NINJA FORCE V1.4 - Moins de rouge, plus premium */
+:root {
+    --bg-dark: #121212;
+    --surface: #1e1e1e;
+    --surface-light: #2c2c2c;
+    --text-main: #f5f5f5;
+    --text-muted: #a0a0a0;
+    --accent: #f5a623; /* Or Ninja / Premium */
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --border-radius: 12px;
 }
 
-.app-container {
-  width: 100%;
-  max-width: 480px;
-  background: #161616;
-  padding: 20px;
-  box-sizing: border-box;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-header h1 {
-  text-align: center;
-  color: #e50914;
-  margin-bottom: 20px;
-}
+body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.5; }
 
-.screen {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+.screen { display: none; padding: 20px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
+.screen.active { display: block; }
 
-/* --- BOUTONS --- */
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  padding: 12px 20px;
-  font-size: 1rem;
-  transition: background 0.2s;
-}
+.app-header { background-color: var(--surface); padding: 15px; text-align: center; border-bottom: 2px solid var(--accent); }
+.ninja-logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); letter-spacing: 1px; }
+.ninja-logo.large { font-size: 4rem; margin-bottom: 10px; }
 
-.btn-primary {
-  background-color: #e50914;
-  color: #fff;
-  width: 100%;
-}
+h2 { margin-bottom: 15px; border-bottom: 1px solid var(--surface-light); padding-bottom: 5px; }
+h3 { font-size: 1.1rem; color: var(--accent); margin-bottom: 10px; }
 
-.btn-primary:hover {
-  background-color: #b80710;
-}
+/* BOUTONS */
+button { border: none; border-radius: var(--border-radius); padding: 12px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: opacity 0.2s; width: 100%; margin-bottom: 10px; color: white; }
+button:active { opacity: 0.8; }
+.btn-primary { background-color: var(--accent); color: #000; }
+.btn-secondary { background-color: var(--surface-light); color: var(--text-main); }
+.btn-danger { background-color: var(--danger); }
+.btn-success { background-color: var(--success); }
+.btn-small { padding: 6px 12px; font-size: 0.9rem; width: auto; margin: 0 5px; }
 
-.btn-secondary {
-  background-color: #333;
-  color: #fff;
-  width: 100%;
-}
+/* LISTE DES ROUTINES */
+.routine-card { background-color: var(--surface); padding: 15px; border-radius: var(--border-radius); margin-bottom: 15px; border-left: 4px solid var(--accent); }
+.routine-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+.routine-meta { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px; }
+.routine-exercises-list { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; padding-left: 20px; }
+.routine-actions { display: flex; gap: 10px; }
 
-.btn-secondary:hover {
-  background-color: #444;
-}
+/* CONSTRUCTEUR */
+.builder-layout { display: flex; flex-direction: column; gap: 20px; }
+@media(min-width: 600px) { .builder-layout { flex-direction: row; } .available-exercises, .selected-exercises { flex: 1; } }
+.scroll-list { background-color: var(--surface); border-radius: var(--border-radius); padding: 10px; min-height: 200px; max-height: 400px; overflow-y: auto; }
+.exo-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--surface-light); margin-bottom: 8px; border-radius: 8px; }
+.exo-item span { display: flex; align-items: center; gap: 10px; }
+.exo-item .emoji { font-size: 1.5rem; }
+.controls-order { display: flex; gap: 5px; }
+.builder-controls { margin-top: 20px; background-color: var(--surface); padding: 15px; border-radius: var(--border-radius); }
+.builder-controls label { display: block; margin-bottom: 10px; }
+.builder-controls input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--surface-light); background-color: var(--bg-dark); color: white; margin-top: 5px; }
 
-/* Bouton abandon corrigé pour ne pas dépasser de l'écran */
-.btn-abandon {
-  background-color: #333;
-  color: #ff4d4d;
-  max-width: 90% !important;
-  width: auto !important;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  margin: 10px auto !important;
-  display: block;
-}
+/* MOTEUR DE SÉANCE */
+.workout-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+.badge { background-color: var(--surface-light); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; border: 1px solid var(--accent); }
+.workout-main { text-align: center; margin-bottom: 40px; }
+.status-text { color: var(--accent); font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+.exercise-title { font-size: 2rem; margin-bottom: 20px; border: none; }
+.timer-circle { width: 150px; height: 150px; border-radius: 50%; background-color: var(--surface); border: 4px solid var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
+#workout-timer { font-size: 4rem; font-weight: bold; }
+.image-container { height: 100px; display: flex; align-items: center; justify-content: center; }
+.workout-emoji-large { font-size: 4rem; }
+.workout-controls { display: flex; gap: 15px; }
 
-.btn-abandon:hover {
-  background-color: #444;
-}
-
-/* --- ÉCRAN D'ENTRAÎNEMENT & IMAGES AGRANDIES --- */
-.workout-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  color: #aaa;
-  margin-bottom: 10px;
-}
-
-.exercise-card {
-  background: #1a1a1a;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  text-align: center;
-}
-
-.exercise-card h3 {
-  margin-top: 0;
-  color: #fff;
-}
-
-.exercise-image img {
-  width: 200%;
-  max-height: 280px; /* Images agrandies et bien visibles */
-  object-fit: contain; /* Conserve toute l'image sans la couper */
-  background-color: #121212;
-  border-radius: 8px;
-  padding: 8px;
-  box-sizing: border-box;
-}
-
-.timer {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #e50914;
-  margin: 15px 0;
-}
-
-.workout-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* --- LISTE ET CRÉATEUR DE SÉANCES --- */
-.routines-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.routine-card {
-  background: #1a1a1a;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.routine-card h3 {
-  margin: 0 0 5px 0;
-  font-size: 1.1rem;
-}
-
-.routine-card p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #aaa;
-}
-
-.routine-card-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.routine-card-actions button {
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  width: auto;
-}
-
-.exercises-checkbox-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 15px 0;
-  max-height: 280px;
-  overflow-y: auto;
-  background: #1a1a1a;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #e50914;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #ccc;
-}
-
-.form-group input[type="text"],
-.form-group input[type="number"] {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #2a2a2a;
-  color: #fff;
-  box-sizing: border-box;
-  font-size: 1rem;
-}
-
-.creator-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
-}
+/* RECAP */
+.summary-stats { background-color: var(--surface); padding: 20px; border-radius: var(--border-radius); margin: 20px 0; font-size: 1.2rem; line-height: 2; }
+.mt-20 { margin-top: 20px; }
+.text-center { text-align: center; }
