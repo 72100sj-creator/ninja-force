@@ -183,6 +183,14 @@ const WorkoutEngine = {
         document.getElementById('summary-rounds').textContent = `${this.maxRounds}/${this.maxRounds}`;
         document.getElementById('summary-exercises').textContent = this.routine.exercises.length;
         
+        App.saveHistoryEntry({
+            date: new Date().toLocaleDateString('fr-FR'),
+            routineName: this.routine.name,
+            duration: `${mins} min ${secs} sec`,
+            rounds: this.maxRounds,
+            exercisesCount: this.routine.exercises.length
+        });
+        
         App.showScreen('screen-summary');
     },
 
@@ -214,6 +222,7 @@ const App = {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
         if(screenId === 'screen-home') this.renderHome();
+        if(screenId === 'screen-history') this.renderHistory();
     },
 
     loadRoutines() {
@@ -233,6 +242,40 @@ const App = {
 
     saveToStorage() {
         localStorage.setItem('ninja_routines', JSON.stringify(this.routines));
+    },
+
+    loadHistory() {
+        const data = localStorage.getItem('ninja_force_history');
+        return data ? JSON.parse(data) : [];
+    },
+
+    saveHistoryEntry(entry) {
+        const history = this.loadHistory();
+        history.unshift(entry);
+        const trimmed = history.slice(0, 20);
+        localStorage.setItem('ninja_force_history', JSON.stringify(trimmed));
+    },
+
+    renderHistory() {
+        const container = document.getElementById('history-list');
+        container.innerHTML = '';
+        const history = this.loadHistory();
+
+        if (history.length === 0) {
+            container.innerHTML = '<p class="text-muted">Aucune séance enregistrée pour l\'instant.</p>';
+            return;
+        }
+
+        history.forEach(entry => {
+            const div = document.createElement('div');
+            div.className = 'history-card';
+            div.innerHTML = `
+                <div class="history-date">${entry.date}</div>
+                <div class="history-name">${entry.routineName}</div>
+                <div class="history-meta">${entry.rounds} tours • ${entry.exercisesCount} exercices • ${entry.duration}</div>
+            `;
+            container.appendChild(div);
+        });
     },
 
     renderHome() {
