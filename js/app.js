@@ -1,7 +1,3 @@
-// NINJA FORCE V1.4 - Moteur Principal
-
-/* --- GESTION AUDIO (Compatible iPhone/iOS) --- */
-// Utilisation de l'API Web Audio pour garantir le fonctionnement sans fichiers mp3 bloqués.
 const AudioSys = {
     ctx: null,
     init() {
@@ -19,7 +15,7 @@ const AudioSys = {
         const gain = this.ctx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime); // Volume modéré
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime); 
         gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
@@ -31,14 +27,12 @@ const AudioSys = {
     beepEnd() { this.playTone(400, 'square', 0.5); }
 };
 
-/* --- WAKE LOCK API --- */
 let wakeLock = null;
 const WakeLockSys = {
     async request() {
         if ('wakeLock' in navigator) {
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
-                console.log('Wake Lock activé');
             } catch (err) {
                 console.warn('Wake Lock refusé:', err);
             }
@@ -51,9 +45,8 @@ const WakeLockSys = {
     }
 };
 
-/* --- MOTEUR DE SÉANCE STRICT (State Machine) --- */
 const WorkoutEngine = {
-    state: 'STOPPED', // STOPPED, PREP, WORK, TRANSITION, REST, FINISHED
+    state: 'STOPPED', 
     routine: null,
     round: 1,
     maxRounds: 1,
@@ -65,7 +58,7 @@ const WorkoutEngine = {
     totalDuration: 0,
 
     start(routine) {
-        AudioSys.init(); // Déverrouille l'audio iOS au clic
+        AudioSys.init(); 
         WakeLockSys.request();
         
         this.routine = routine;
@@ -75,7 +68,6 @@ const WorkoutEngine = {
         this.isPaused = false;
         this.startTime = Date.now();
         
-        // État initial
         this.state = 'PREP';
         this.timeLeft = 10;
         
@@ -91,48 +83,38 @@ const WorkoutEngine = {
 
         if (this.timeLeft > 0) {
             this.timeLeft--;
-            
-            // Bips sonores dans les 3 dernières secondes
             if (this.timeLeft > 0 && this.timeLeft <= 3 && (this.state === 'PREP' || this.state === 'TRANSITION' || this.state === 'REST' || this.state === 'WORK')) {
                 AudioSys.beepShort();
             }
             this.updateUI();
             return;
         }
-
-        // Le temps est écoulé, on passe à l'étape stricte suivante
         this.advanceState();
     },
 
     advanceState() {
         if (this.state === 'PREP' || this.state === 'TRANSITION' || this.state === 'REST') {
-            // Début d'un exercice
             AudioSys.beepLong();
             this.state = 'WORK';
             this.timeLeft = this.routine.exercises[this.exIndex].duration;
         } 
         else if (this.state === 'WORK') {
-            // Fin d'un exercice
             AudioSys.beepEnd();
             this.exIndex++;
             
             if (this.exIndex >= this.routine.exercises.length) {
-                // Fin du tour complet
                 this.round++;
                 if (this.round > this.maxRounds) {
-                    // Fin totale de la séance
                     this.endWorkout();
-                    return; // Arrêt immédiat
+                    return; 
                 } else {
-                    // Récupération entre les tours
                     this.state = 'REST';
-                    this.timeLeft = 60; // 60 secondes strictes
-                    this.exIndex = 0; // Réinitialise l'index pour le prochain tour
+                    this.timeLeft = 60; 
+                    this.exIndex = 0; 
                 }
             } else {
-                // Passage à l'exercice suivant (même tour)
                 this.state = 'TRANSITION';
-                this.timeLeft = 5; // 5 secondes de mise en place
+                this.timeLeft = 5; 
             }
         }
         this.updateUI();
@@ -147,31 +129,33 @@ const WorkoutEngine = {
 
         const statusEl = document.getElementById('workout-status');
         const titleEl = document.getElementById('workout-exercise-name');
-        const emojiEl = document.getElementById('workout-emoji');
+        const imageEl = document.getElementById('workout-image');
 
-        // Affichage conditionné strictement par l'état
         switch (this.state) {
             case 'PREP':
                 statusEl.textContent = '⏱️ Préparation';
                 titleEl.textContent = 'Mettez-vous en place';
-                emojiEl.textContent = '🥷';
+                imageEl.src = this.routine.exercises[0].image; 
+                imageEl.style.display = 'block';
                 break;
             case 'WORK':
                 const currentEx = this.routine.exercises[this.exIndex];
                 statusEl.textContent = '🔥 En cours';
                 titleEl.textContent = currentEx.name;
-                emojiEl.textContent = currentEx.emoji;
+                imageEl.src = currentEx.image;
+                imageEl.style.display = 'block';
                 break;
             case 'TRANSITION':
                 const nextEx = this.routine.exercises[this.exIndex];
                 statusEl.textContent = '⏱️ Mise en place';
                 titleEl.textContent = `À suivre : ${nextEx.name}`;
-                emojiEl.textContent = nextEx.emoji;
+                imageEl.src = nextEx.image;
+                imageEl.style.display = 'block';
                 break;
             case 'REST':
                 statusEl.textContent = '☕ Récupération';
                 titleEl.textContent = 'Soufflez un peu !';
-                emojiEl.textContent = '🥷';
+                imageEl.style.display = 'none'; // Cache l'image pendant la pause
                 break;
         }
     },
@@ -193,7 +177,6 @@ const WorkoutEngine = {
         this.totalDuration = Math.floor((Date.now() - this.startTime) / 1000);
         this.forceStop();
         
-        // Formater la durée
         const mins = Math.floor(this.totalDuration / 60);
         const secs = this.totalDuration % 60;
         document.getElementById('summary-duration').textContent = `${mins} min ${secs} sec`;
@@ -210,18 +193,16 @@ const WorkoutEngine = {
     }
 };
 
-/* --- LOGIQUE APPLICATION ET SAUVEGARDE --- */
 const App = {
     routines: [],
     editingRoutineId: null,
-    builderExercises: [], // Liste des exos sélectionnés dans le constructeur
+    builderExercises: [], 
 
     init() {
         this.loadRoutines();
         this.renderHome();
         this.renderCatalogue();
         
-        // Gérer le réveil pour le Wake Lock
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && WorkoutEngine.state !== 'STOPPED') {
                 WakeLockSys.request();
@@ -240,7 +221,6 @@ const App = {
         if (data) {
             this.routines = JSON.parse(data);
         } else {
-            // Routine par défaut pour les débutants
             this.routines = [{
                 id: Date.now().toString(),
                 name: "Routine Express",
@@ -268,8 +248,7 @@ const App = {
             const card = document.createElement('div');
             card.className = 'routine-card';
             
-            // Générer la liste à puces des exercices pour affichage rapide
-            const exosListHTML = routine.exercises.map(ex => `<li>${ex.emoji} ${ex.name}</li>`).join('');
+            const exosListHTML = routine.exercises.map(ex => `<li>${ex.name}</li>`).join('');
 
             card.innerHTML = `
                 <div class="routine-title">${routine.name}</div>
@@ -289,7 +268,6 @@ const App = {
         if(routine) WorkoutEngine.start(routine);
     },
 
-    /* --- CONSTRUCTEUR DE ROUTINES --- */
     openBuilder() {
         this.editingRoutineId = null;
         this.builderExercises = [];
@@ -305,7 +283,6 @@ const App = {
         if(!routine) return;
         
         this.editingRoutineId = routine.id;
-        // Clonage profond pour ne pas modifier la source avant sauvegarde
         this.builderExercises = JSON.parse(JSON.stringify(routine.exercises));
         document.getElementById('routine-name').value = routine.name;
         document.getElementById('routine-rounds').value = routine.rounds;
@@ -322,7 +299,10 @@ const App = {
             const div = document.createElement('div');
             div.className = 'exo-item';
             div.innerHTML = `
-                <span><span class="emoji">${exo.emoji}</span> ${exo.name}</span>
+                <div class="exo-item-info">
+                    <img src="${exo.image}" class="exo-thumb" alt="${exo.name}" onerror="this.src='img/placeholder.png';"> 
+                    <span>${exo.name}</span>
+                </div>
                 <button class="btn-primary btn-small" onclick="App.addToBuilder('${exo.id}')">+</button>
             `;
             container.appendChild(div);
@@ -332,7 +312,7 @@ const App = {
     addToBuilder(exoId) {
         const exo = ExercicesDB.find(e => e.id === exoId);
         if(exo) {
-            this.builderExercises.push({...exo}); // Ajout
+            this.builderExercises.push({...exo}); 
             this.renderBuilderSelected();
         }
     },
@@ -344,12 +324,10 @@ const App = {
 
     moveBuilderExo(index, direction) {
         if (direction === -1 && index > 0) {
-            // Monter
             const temp = this.builderExercises[index];
             this.builderExercises[index] = this.builderExercises[index - 1];
             this.builderExercises[index - 1] = temp;
         } else if (direction === 1 && index < this.builderExercises.length - 1) {
-            // Descendre
             const temp = this.builderExercises[index];
             this.builderExercises[index] = this.builderExercises[index + 1];
             this.builderExercises[index + 1] = temp;
@@ -370,7 +348,10 @@ const App = {
             const div = document.createElement('div');
             div.className = 'exo-item';
             div.innerHTML = `
-                <span><span class="emoji">${exo.emoji}</span> ${exo.name}</span>
+                <div class="exo-item-info">
+                    <img src="${exo.image}" class="exo-thumb" alt="${exo.name}" onerror="this.src='img/placeholder.png';"> 
+                    <span>${exo.name}</span>
+                </div>
                 <div class="controls-order">
                     <button class="btn-secondary btn-small" onclick="App.moveBuilderExo(${index}, -1)">↑</button>
                     <button class="btn-secondary btn-small" onclick="App.moveBuilderExo(${index}, 1)">↓</button>
@@ -397,11 +378,9 @@ const App = {
         };
 
         if (this.editingRoutineId) {
-            // Mise à jour
             const index = this.routines.findIndex(r => r.id === this.editingRoutineId);
             this.routines[index] = newRoutine;
         } else {
-            // Nouvelle création
             this.routines.push(newRoutine);
         }
 
@@ -410,5 +389,4 @@ const App = {
     }
 };
 
-// Initialisation au chargement
 window.onload = () => App.init();
