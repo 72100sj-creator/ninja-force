@@ -114,7 +114,7 @@ const WorkoutEngine = {
                 }
             } else {
                 this.state = 'TRANSITION';
-                this.timeLeft = 5; 
+                this.timeLeft = 10; 
             }
         }
         this.updateUI();
