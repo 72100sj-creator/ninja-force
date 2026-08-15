@@ -1,131 +1,94 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NINJA FORCE</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ninja Force V1.4</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Manifest pour la PWA -->
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div class="app-container">
-    <!-- En-tête de l'application -->
-    <header>
-      <h1>🥷 NINJA FORCE</h1>
+    <!-- EN-TÊTE -->
+    <header class="app-header">
+        <div class="ninja-logo">🥷 NINJA FORCE</div>
     </header>
 
-    <!-- 1. Écran de sélection des séances -->
-    <section id="routine-selector-screen" class="screen">
-      <h2>Mes Séances</h2>
-      
-      <div id="saved-routines-list" class="routines-list">
-        <!-- Les séances personnalisées s'afficheront ici -->
-      </div>
-
-      <button id="btn-create-routine" class="btn-primary">Créer une nouvelle séance</button>
-      <button id="btn-library" class="btn-secondary">Fiches d'exercices (16)</button>
-      
-      <!-- Version uniquement sur l'accueil -->
-      <div class="home-version">v1.3.2</div>
-    </section>
-
-    <!-- 2. Écran de création / personnalisation d'une séance -->
-    <section id="routine-creator-screen" class="screen" style="display: none;">
-      <h2>Personnaliser ma séance</h2>
-      
-      <div class="form-group">
-        <label for="routine-name">Nom de la séance :</label>
-        <input type="text" id="routine-name" placeholder="Ex: Routine matinale">
-      </div>
-
-      <div class="form-group">
-        <label for="routine-rounds">Nombre de tours :</label>
-        <input type="number" id="routine-rounds" value="3" min="1" max="10">
-      </div>
-
-      <div id="estimated-time-box" class="estimated-time-box">
-        ⏱️ Durée estimée : <span id="estimated-time-display">0 min</span>
-      </div>
-
-      <h3>Ordre des exercices :</h3>
-      <p style="font-size: 0.8rem; color: #888; margin-top: -5px;">Utilise les flèches pour réorganiser ta séance.</p>
-      <div id="ordered-exercises-list" class="ordered-exercises-container">
-        <!-- Liste ordonnée avec flèches haut/bas -->
-      </div>
-
-      <h3>Sélectionne tes exercices :</h3>
-      <div id="exercise-checkboxes-list" class="exercises-checkbox-container">
-        <!-- Liste des 16 exercices à cocher -->
-      </div>
-
-      <div class="creator-actions">
-        <button id="btn-save-routine" class="btn-primary">Enregistrer la séance</button>
-        <button id="btn-cancel-routine" class="btn-secondary">Annuler</button>
-      </div>
-    </section>
-
-    <!-- 3. Écran d'entraînement actif -->
-    <section id="workout-screen" class="screen" style="display: none;">
-      <div class="workout-header">
-        <span id="current-routine-title">Séance</span>
-        <span id="round-counter">Tour 1/3</span>
-      </div>
-
-      <div class="exercise-card">
-        <h3 id="exercise-name">Nom de l'exercice</h3>
-        <div class="exercise-image">
-          <img id="exercise-img" src="" alt="Illustration exercice">
+    <!-- ÉCRAN : ACCUEIL / LISTE DES ROUTINES -->
+    <section id="screen-home" class="screen active">
+        <h2>Mes Routines</h2>
+        <div id="routines-list" class="routines-container">
+            <!-- Les routines apparaîtront ici -->
         </div>
-        <p id="exercise-desc">Description de l'exercice</p>
-        <div id="timer-display" class="timer">00:30</div>
-      </div>
-
-      <div class="workout-actions">
-        <button id="btn-pause" class="btn-secondary">Pause</button>
-        <button id="btn-next" class="btn-primary">Suivant</button>
-        <button id="btn-abandon" class="btn-abandon">Abandonner</button>
-      </div>
+        <button class="btn-primary mt-20" onclick="App.openBuilder()">+ Créer une Routine</button>
     </section>
 
-    <!-- 4. Écran de fin / bilan -->
-    <section id="completion-screen" class="screen" style="display: none;">
-      <div class="completion-card">
-        <h2>🥷 SÉANCE TERMINÉE !</h2>
-        <p style="color: #aaa; margin-top: -5px;">Bravo Ninja !</p>
+    <!-- ÉCRAN : CONSTRUCTEUR DE ROUTINE -->
+    <section id="screen-builder" class="screen">
+        <h2 id="builder-title">Nouvelle Routine</h2>
         
-        <div class="completion-stats">
-          <div class="stat-item">
-            <span>Durée :</span>
-            <strong id="stat-duration">0 min</strong>
-          </div>
-          <div class="stat-item">
-            <span>Exercices :</span>
-            <strong id="stat-exercises">0</strong>
-          </div>
-          <div class="stat-item">
-            <span>Tours :</span>
-            <strong id="stat-rounds">0</strong>
-          </div>
-          <div class="stat-item">
-            <span>Blocs réalisés :</span>
-            <strong id="stat-total">0</strong>
-          </div>
+        <div class="builder-layout">
+            <div class="available-exercises">
+                <h3>Catalogue</h3>
+                <div id="catalogue-list" class="scroll-list"></div>
+            </div>
+            
+            <div class="selected-exercises">
+                <h3>Ma Routine</h3>
+                <div id="selected-list" class="scroll-list"></div>
+                
+                <div class="builder-controls">
+                    <label>Nom : <input type="text" id="routine-name" placeholder="Ex: Routine Express"></label>
+                    <label>Tours : <input type="number" id="routine-rounds" value="3" min="1" max="10"></label>
+                    <button class="btn-success" onclick="App.saveRoutine()">Sauvegarder</button>
+                    <button class="btn-secondary" onclick="App.showScreen('screen-home')">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ÉCRAN : MOTEUR DE SÉANCE EN COURS -->
+    <section id="screen-workout" class="screen">
+        <div class="workout-header">
+            <span id="workout-progress-tours" class="badge">Tour 1/3</span>
+            <span id="workout-progress-exos" class="badge">Exercice 1/5</span>
+        </div>
+        
+        <div class="workout-main">
+            <h1 id="workout-status" class="status-text">Préparation</h1>
+            <h2 id="workout-exercise-name" class="exercise-title">Préparez-vous</h2>
+            <div class="timer-circle">
+                <span id="workout-timer">10</span>
+            </div>
+            <!-- Image de l'exercice -->
+            <div id="workout-image-container" class="image-container">
+                 <span id="workout-emoji" class="workout-emoji-large">🥷</span>
+            </div>
         </div>
 
-        <button id="btn-home" class="btn-primary" style="margin-top: 15px;">TERMINER</button>
-      </div>
+        <div class="workout-controls">
+            <button id="btn-pause" class="btn-secondary" onclick="WorkoutEngine.togglePause()">Pause</button>
+            <button class="btn-danger" onclick="WorkoutEngine.abandon()">Abandonner</button>
+            <!-- Le bouton Suivant a été supprimé comme demandé -->
+        </div>
     </section>
 
-    <!-- 5. Écran de la bibliothèque / fiches d'exercices -->
-    <section id="library-screen" class="screen" style="display: none;">
-      <h2>Bibliothèque des fiches</h2>
-      <div id="library-exercises-list" class="library-container">
-        <!-- Les 16 fiches d'exercices s'afficheront ici -->
-      </div>
-      <button id="btn-library-back" class="btn-primary">Retour</button>
-    </section>
-  </div>
+    <!-- ÉCRAN : FIN DE SÉANCE -->
+    <section id="screen-summary" class="screen text-center">
+        <h1 class="ninja-logo large">🥷</h1>
+        <h2>SÉANCE TERMINÉE !</h2>
+        <p>Bravo, vous avez complété votre entraînement avec succès.</p>
+        
+        <div class="summary-stats">
+            <p>Durée totale : <strong id="summary-duration">00:00</strong></p>
+            <p>Tours réalisés : <strong id="summary-rounds">3/3</strong></p>
+            <p>Exercices par tour : <strong id="summary-exercises">5</strong></p>
+        </div>
 
-  <script src="script.js"></script>
+        <button class="btn-primary mt-20" onclick="App.showScreen('screen-home')">TERMINER</button>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
