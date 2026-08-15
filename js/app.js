@@ -271,11 +271,17 @@ const App = {
             div.className = 'history-card';
             div.innerHTML = `
                 <div class="history-date">${entry.date}</div>
-                <div class="history-name">${entry.routineName}</div>
+                <div class="history-name">${this.escapeHtml(entry.routineName)}</div>
                 <div class="history-meta">${entry.rounds} tours • ${entry.exercisesCount} exercices • ${entry.duration}</div>
             `;
             container.appendChild(div);
         });
+    },
+
+    escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     },
 
     renderHome() {
@@ -294,7 +300,7 @@ const App = {
             const exosListHTML = routine.exercises.map(ex => `<li>${ex.name}</li>`).join('');
 
             card.innerHTML = `
-                <div class="routine-title">${routine.name}</div>
+                <div class="routine-title">${this.escapeHtml(routine.name)}</div>
                 <div class="routine-meta">${routine.exercises.length} exercices • ${routine.rounds} tours</div>
                 <ul class="routine-exercises-list">${exosListHTML}</ul>
                 <div class="routine-actions">
