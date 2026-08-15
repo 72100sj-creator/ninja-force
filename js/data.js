@@ -11,7 +11,7 @@ const ExercicesDB = [
         id: "exo_fentes",
         name: "Fentes Alternées",
         image: "assets/exercises/02-fentes.jpg",
-        duration: 40,
+        duration: 30,
         description: "Un grand pas en avant, le genou arrière frôle le sol."
     },
     {
@@ -39,21 +39,21 @@ const ExercicesDB = [
         id: "exo_birddog",
         name: "Bird Dog",
         image: "assets/exercises/06-birddog.jpg",
-        duration: 40,
+        duration: 30,
         description: "En appui quadrupedique, tendre simultanément le bras opposé et la jambe opposée."
     },
     {
         id: "exo_ytw",
         name: "YTW",
         image: "assets/exercises/07-ytw.jpg",
-        duration: 45,
+        duration: 30,
         description: "Position debout. Buste incliné vers l'avant avec charnière de hanches. Dos maintenu dans une position stable. Réalisation des mouvements de bras correspondant aux positions Y, T et W."
     },
     {
         id: "exo_planche",
         name: "Gainage Planche",
         image: "assets/exercises/08-planche.jpg",
-        duration: 45,
+        duration: 30,
         description: "Sur les coudes, corps aligné, contracter les abdos."
     },
     {
@@ -67,7 +67,7 @@ const ExercicesDB = [
         id: "exo_deadbug",
         name: "Dead Bug",
         image: "assets/exercises/10-deadbug.jpg",
-        duration: 40,
+        duration: 30,
         description: "Sur le dos, descendre alternativement un bras et une jambe tout en gardant le bas du dos collé au sol."
     },
     {
