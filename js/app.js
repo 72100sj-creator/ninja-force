@@ -155,7 +155,7 @@ const WorkoutEngine = {
             case 'REST':
                 statusEl.textContent = '☕ Récupération';
                 titleEl.textContent = 'Soufflez un peu !';
-                imageEl.style.display = 'none'; // Cache l'image pendant la pause
+                imageEl.style.display = 'none'; 
                 break;
         }
     },
@@ -300,7 +300,7 @@ const App = {
             div.className = 'exo-item';
             div.innerHTML = `
                 <div class="exo-item-info">
-                    <img src="${exo.image}" class="exo-thumb" alt="${exo.name}" onerror="this.src='img/placeholder.png';"> 
+                    <img src="${exo.image}" class="exo-thumb" alt="${exo.name}"> 
                     <span>${exo.name}</span>
                 </div>
                 <button class="btn-primary btn-small" onclick="App.addToBuilder('${exo.id}')">+</button>
@@ -349,7 +349,7 @@ const App = {
             div.className = 'exo-item';
             div.innerHTML = `
                 <div class="exo-item-info">
-                    <img src="${exo.image}" class="exo-thumb" alt="${exo.name}" onerror="this.src='img/placeholder.png';"> 
+                    <img src="${exo.image}" class="exo-thumb" alt="${exo.name}"> 
                     <span>${exo.name}</span>
                 </div>
                 <div class="controls-order">
@@ -363,7 +363,7 @@ const App = {
     },
 
     saveRoutine() {
-        const nameInput = document.getElementById('routine-name').value.trim();
+        const nameInput = document.getElementById('routine-name').value.trim5 ? document.getElementById('routine-name').value.trim() : document.getElementById('routine-name').value.trim();
         const roundsInput = parseInt(document.getElementById('routine-rounds').value);
 
         if (!nameInput) { alert("Veuillez donner un nom à la routine."); return; }
