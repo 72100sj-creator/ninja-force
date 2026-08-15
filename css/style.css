@@ -72,3 +72,8 @@ button:active { opacity: 0.8; }
 .summary-stats { background-color: var(--surface); padding: 20px; border-radius: var(--border-radius); margin: 20px 0; font-size: 1.1rem; line-height: 2; }
 .mt-20 { margin-top: 20px; }
 .text-center { text-align: center; }
+
+.history-card { background-color: var(--surface); padding: 15px; border-radius: var(--border-radius); margin-bottom: 12px; border-left: 4px solid var(--accent); }
+.history-date { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+.history-name { font-weight: bold; font-size: 1.05rem; margin-bottom: 4px; }
+.history-meta { font-size: 0.9rem; color: var(--text-muted); }
