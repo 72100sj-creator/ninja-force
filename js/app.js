@@ -406,7 +406,7 @@ const App = {
     },
 
     saveRoutine() {
-        const nameInput = document.getElementById('routine-name').value.trim5 ? document.getElementById('routine-name').value.trim() : document.getElementById('routine-name').value.trim();
+        const nameInput = document.getElementById('routine-name').value.trim();
         const roundsInput = parseInt(document.getElementById('routine-rounds').value);
 
         if (!nameInput) { alert("Veuillez donner un nom à la routine."); return; }
