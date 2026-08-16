@@ -26,15 +26,9 @@ body {
 .screen { display: none; padding: 15px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
 .screen.active { display: block; }
 
-.app-header {
-    background-color: var(--surface);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid var(--glass-border);
-}
-.ninja-logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); letter-spacing: 1px; }
+.ninja-logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.ninja-mark { width: 28px; height: 28px; color: var(--accent); filter: drop-shadow(0 0 6px var(--accent-soft)); flex-shrink: 0; }
+.ninja-mark.large { width: 90px; height: 90px; }
 .ninja-logo.large { font-size: 4rem; margin-bottom: 10px; }
 
 h2 { margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px; font-size: 1.3rem; }
@@ -115,6 +109,9 @@ button:active { opacity: 0.8; }
     border: 1px solid var(--accent);
 }
 .workout-main { text-align: center; margin-bottom: 15px; }
+.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 8px; min-height: 100px; align-items: flex-end; }
+.ninja-avatar { height: 100px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); transition: height 0.3s ease; }
+.ninja-avatar.large { height: 220px; }
 .status-text { color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
 .exercise-title { font-size: 1.7rem; margin-bottom: 15px; border: none; }
 .timer-circle {

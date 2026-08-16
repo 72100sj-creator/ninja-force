@@ -130,32 +130,41 @@ const WorkoutEngine = {
         const statusEl = document.getElementById('workout-status');
         const titleEl = document.getElementById('workout-exercise-name');
         const imageEl = document.getElementById('workout-image');
+        const ninjaEl = document.getElementById('workout-ninja');
 
         switch (this.state) {
             case 'PREP':
-                statusEl.textContent = '⏱️ Préparation';
+                statusEl.textContent = 'Préparation';
                 titleEl.textContent = 'Mettez-vous en place';
                 imageEl.src = this.routine.exercises[0].image; 
                 imageEl.style.display = 'block';
+                ninjaEl.src = 'assets/mascot/ninja-prep.png';
+                ninjaEl.classList.remove('large');
                 break;
             case 'WORK':
                 const currentEx = this.routine.exercises[this.exIndex];
-                statusEl.textContent = '🔥 En cours';
+                statusEl.textContent = 'En cours';
                 titleEl.textContent = currentEx.name;
                 imageEl.src = currentEx.image;
                 imageEl.style.display = 'block';
+                ninjaEl.src = 'assets/mascot/ninja-active.png';
+                ninjaEl.classList.remove('large');
                 break;
             case 'TRANSITION':
                 const nextEx = this.routine.exercises[this.exIndex];
-                statusEl.textContent = '⏱️ Mise en place';
+                statusEl.textContent = 'Mise en place';
                 titleEl.textContent = `À suivre : ${nextEx.name}`;
                 imageEl.src = nextEx.image;
                 imageEl.style.display = 'block';
+                ninjaEl.src = 'assets/mascot/ninja-prep.png';
+                ninjaEl.classList.remove('large');
                 break;
             case 'REST':
-                statusEl.textContent = '☕ Récupération';
+                statusEl.textContent = 'Récupération';
                 titleEl.textContent = 'Soufflez un peu !';
                 imageEl.style.display = 'none'; 
+                ninjaEl.src = 'assets/mascot/ninja-rest.png';
+                ninjaEl.classList.add('large');
                 break;
         }
     },

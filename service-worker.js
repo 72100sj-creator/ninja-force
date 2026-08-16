@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ninja-force-v2';
+const CACHE_NAME = 'ninja-force-v3';
 const ASSETS = [
     './',
     './index.html',
@@ -8,6 +8,10 @@ const ASSETS = [
     './manifest.json',
     './assets/icons/icon-192.png',
     './assets/icons/icon-512.png',
+    './assets/mascot/ninja-prep.png',
+    './assets/mascot/ninja-active.png',
+    './assets/mascot/ninja-rest.png',
+    './assets/mascot/ninja-greet.png',
     './assets/exercises/01-squat.jpg',
     './assets/exercises/02-fentes.jpg',
     './assets/exercises/03-pont.jpg',
