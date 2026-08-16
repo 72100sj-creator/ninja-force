@@ -110,7 +110,7 @@ button:active { opacity: 0.8; }
 .workout-main { text-align: center; margin-bottom: 15px; }
 .ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 0; min-height: 100px; align-items: flex-end; }
 .ninja-avatar { height: 100px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); transition: height 0.3s ease; }
-.ninja-avatar.large { height: 180px; }
+.ninja-avatar.large { height: 140px; }
 .status-text { color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
 .exercise-title { font-size: 1.7rem; margin-bottom: 15px; border: none; }
 .timer-circle {
