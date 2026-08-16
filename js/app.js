@@ -293,6 +293,17 @@ const App = {
         return div.innerHTML;
     },
 
+    estimateDuration(routine) {
+        const N = routine.exercises.length;
+        const R = routine.rounds;
+        const workTotal = routine.exercises.reduce((sum, ex) => sum + ex.duration, 0) * R;
+        const transitions = (N - 1) * 10 * R;
+        const rests = (R - 1) * 60;
+        const totalSeconds = 10 + workTotal + transitions + rests;
+        const mins = Math.round(totalSeconds / 60);
+        return `≈ ${mins} min`;
+    },
+
     renderHome() {
         const container = document.getElementById('routines-list');
         container.innerHTML = '';
@@ -310,7 +321,7 @@ const App = {
 
             card.innerHTML = `
                 <div class="routine-title">${this.escapeHtml(routine.name)}</div>
-                <div class="routine-meta">${routine.exercises.length} exercices • ${routine.rounds} tours</div>
+                <div class="routine-meta">${routine.exercises.length} exercices • ${routine.rounds} tours • ${this.estimateDuration(routine)}</div>
                 <ul class="routine-exercises-list">${exosListHTML}</ul>
                 <div class="routine-actions">
                     <button class="btn-success" onclick="App.startRoutine('${routine.id}')">Démarrer</button>

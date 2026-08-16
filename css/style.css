@@ -1,11 +1,11 @@
 :root {
-    --bg-dark: #0d1420;
-    --bg-glow: #16213a;
-    --surface: rgba(30, 45, 74, 0.55);
-    --surface-light: rgba(45, 64, 97, 0.55);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --bg-dark: #182642;
+    --bg-glow: #253963;
+    --surface: rgba(38, 55, 88, 0.55);
+    --surface-light: rgba(53, 74, 111, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --text-main: #eef2f7;
-    --text-muted: #93a5c2;
+    --text-muted: #9cb0cc;
     --accent: #56aee0;
     --accent-soft: rgba(86, 174, 224, 0.18);
     --danger: #d9605f;
@@ -16,7 +16,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
 body {
-    background: radial-gradient(circle at 50% 0%, var(--bg-glow) 0%, var(--bg-dark) 60%);
+    background: radial-gradient(ellipse 100% 60% at 50% 0%, var(--bg-glow) 0%, var(--bg-dark) 100%);
     background-attachment: fixed;
     color: var(--text-main);
     line-height: 1.5;
@@ -26,10 +26,7 @@ body {
 .screen { display: none; padding: 15px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
 .screen.active { display: block; }
 
-.ninja-logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.ninja-mark { width: 28px; height: 28px; color: var(--accent); filter: drop-shadow(0 0 6px var(--accent-soft)); flex-shrink: 0; }
-.ninja-mark.large { width: 90px; height: 90px; }
-.ninja-logo.large { font-size: 4rem; margin-bottom: 10px; }
+.summary-mascot { height: 180px; width: auto; margin-bottom: 10px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); }
 
 h2 { margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px; font-size: 1.3rem; }
 h3 { font-size: 1.1rem; color: var(--accent); margin-bottom: 10px; }
@@ -97,7 +94,7 @@ button:active { opacity: 0.8; }
 .builder-controls label { display: block; margin-bottom: 10px; font-size: 0.9rem; }
 .builder-controls input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background-color: var(--bg-dark); color: white; margin-top: 5px; font-size: 1rem; }
 
-.workout-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.workout-status-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
 .badge {
     background-color: var(--surface-light);
     -webkit-backdrop-filter: blur(12px);
@@ -108,8 +105,9 @@ button:active { opacity: 0.8; }
     font-size: 0.9rem;
     border: 1px solid var(--accent);
 }
+.badge-side { font-size: 0.7rem; padding: 4px 9px; white-space: nowrap; flex-shrink: 0; margin-bottom: 8px; }
 .workout-main { text-align: center; margin-bottom: 15px; }
-.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 8px; min-height: 100px; align-items: flex-end; }
+.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 0; min-height: 100px; align-items: flex-end; flex: 1; }
 .ninja-avatar { height: 100px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); transition: height 0.3s ease; }
 .ninja-avatar.large { height: 220px; }
 .status-text { color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }

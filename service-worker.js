@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ninja-force-v3';
+const CACHE_NAME = 'ninja-force-v4';
 const ASSETS = [
     './',
     './index.html',
@@ -11,7 +11,7 @@ const ASSETS = [
     './assets/mascot/ninja-prep.png',
     './assets/mascot/ninja-active.png',
     './assets/mascot/ninja-rest.png',
-    './assets/mascot/ninja-greet.png',
+    './assets/mascot/ninja-victory.png',
     './assets/exercises/01-squat.jpg',
     './assets/exercises/02-fentes.jpg',
     './assets/exercises/03-pont.jpg',
