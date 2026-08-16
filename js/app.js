@@ -324,7 +324,7 @@ const App = {
                 <div class="routine-meta">${routine.exercises.length} exercices • ${routine.rounds} tours • ${this.estimateDuration(routine)}</div>
                 <ul class="routine-exercises-list">${exosListHTML}</ul>
                 <div class="routine-actions">
-                    <button class="btn-success" onclick="App.startRoutine('${routine.id}')">Démarrer</button>
+                    <button class="btn-primary" onclick="App.startRoutine('${routine.id}')">Démarrer</button>
                     <button class="btn-secondary" onclick="App.editRoutine('${routine.id}')">Modifier</button>
                 </div>
             `;

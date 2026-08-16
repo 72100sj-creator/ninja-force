@@ -1,5 +1,24 @@
 # Changelog Ninja Force
 
+## [V1.6] - 2026-08-16 - Identité visuelle et personnages
+
+### Nouveautés
+- Intégration de 4 personnages illustrés (préparation, en cours, récupération, victoire) qui remplacent les emojis de statut pendant la séance et sur l'écran de fin.
+- Affichage du personnage en grand format pendant la récupération (aucune photo d'exercice à cet instant, donc pas de superposition).
+- Ajout du temps estimé sur chaque carte de routine enregistrée (calcul basé sur le déroulement réel : préparation, exercices, transitions, récupérations).
+- Affichage discret du numéro de version sur l'écran d'accueil.
+
+### Identité visuelle
+- Bascule complète vers un thème clair (fond gris avec une touche de bleu primaire, cartes "verre" blanches, texte foncé) — remplace le thème sombre de la V1.5.
+- Bouton "Démarrer" d'une routine passé en bleu (accent), à la place du vert.
+- Retrait du bandeau de logo permanent en haut de l'écran, pour plus d'espace utile.
+- Repositionnement des badges "Tour" et "Exercice" de chaque côté du minuteur (au lieu du personnage), pour ne jamais se chevaucher.
+
+### Corrections
+- Correction du texte des boutons bleus, illisible depuis le changement de thème (contraste insuffisant).
+- Correction du champ de saisie du nom de routine, dont le texte devenait invisible sur fond clair.
+- Ajout d'une sécurité empêchant l'écran de s'élargir horizontalement sur les petits iPhones.
+
 ## [V1.5] - 2026-08-16 - Mise en conformité avec le cahier des charges
 
 ### Corrections
