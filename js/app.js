@@ -9,22 +9,22 @@ const AudioSys = {
             this.ctx.resume();
         }
     },
-    playTone(frequency, type, duration) {
+    playTone(frequency, type, duration, volume = 0.1) {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime); 
+        gain.gain.setValueAtTime(volume, this.ctx.currentTime); 
         gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + duration);
     },
-    beepShort() { this.playTone(600, 'sine', 0.1); },
-    beepLong() { this.playTone(800, 'square', 0.4); },
-    beepEnd() { this.playTone(400, 'square', 0.5); }
+    beepShort() { this.playTone(600, 'square', 0.15, 0.3); },
+    beepLong() { this.playTone(800, 'square', 0.4, 0.1); },
+    beepEnd() { this.playTone(400, 'square', 0.5, 0.1); }
 };
 
 let wakeLock = null;

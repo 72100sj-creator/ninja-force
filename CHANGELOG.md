@@ -1,5 +1,23 @@
 # Changelog Ninja Force
 
+## [V1.5] - 2026-08-16 - Mise en conformité avec le cahier des charges
+
+### Corrections
+- Uniformisation de la durée des 16 exercices à 30 secondes (5 exercices étaient désynchronisés : Fentes, Bird Dog, YTW, Planche, Dead Bug).
+- Décompte de mise en place porté à 10 secondes avant **chaque** exercice (il n'était que de 5 secondes entre les exercices d'un même tour).
+- Activation réelle du mode hors-ligne : le Service Worker n'était jusqu'ici jamais enregistré (l'appli avait besoin du réseau à chaque ouverture malgré ce qu'annonçait la doc). Sa liste de fichiers a aussi été corrigée (référence à un fichier inexistant supprimée, fichiers réellement utilisés ajoutés, y compris les 16 photos d'exercices).
+- Ajout des balises iOS nécessaires pour un vrai rendu "application" une fois ajoutée à l'écran d'accueil (icône correcte, ouverture en plein écran sans barre Safari).
+- Restauration de l'historique des séances : sauvegarde automatique à la fin de chaque séance (date, routine, durée, tours, exercices) et nouvel écran pour le consulter (20 dernières séances conservées).
+- Bips de décompte (3-2-1) renforcés : volume x3 et timbre plus net pour une meilleure audibilité sur le haut-parleur de l'iPhone.
+
+### Nettoyage
+- Suppression des fichiers obsolètes non utilisés par l'application (`script.js`, `js/exercises.js`, `js/storage.js`).
+- Suppression d'un résidu de code sans effet dans la fonction de sauvegarde de routine.
+- Protection de l'affichage du nom de routine contre les caractères spéciaux.
+
+### Identité visuelle
+- Nouvelle palette bleu nuit avec effet "verre liquide" sobre, inspirée des couleurs de l'icône Ninja Force (remplace le thème or/sombre précédent).
+
 ## [V1.4] - Stabilisation Tests IRL
 - Restructuration totale du déroulement des séances (State Machine).
 - Correction de l'exercice sauté en début de séance.
