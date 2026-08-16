@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ninja-force-v4';
+const CACHE_NAME = 'ninja-force-v5';
 const ASSETS = [
     './',
     './index.html',
