@@ -1,8 +1,8 @@
 :root {
-    --bg-dark: #26375c;
-    --bg-glow: #38507f;
-    --surface: rgba(48, 68, 106, 0.55);
-    --surface-light: rgba(64, 88, 130, 0.55);
+    --bg-dark: #34497a;
+    --bg-glow: #435f96;
+    --surface: rgba(62, 84, 128, 0.55);
+    --surface-light: rgba(78, 104, 152, 0.55);
     --glass-border: rgba(255, 255, 255, 0.1);
     --text-main: #eef2f7;
     --text-muted: #9cb0cc;
@@ -21,6 +21,7 @@ body {
     color: var(--text-main);
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
 }
 
 .screen { display: none; padding: 15px; max-width: 800px; margin: 0 auto; min-height: 100vh; }
@@ -94,7 +95,7 @@ button:active { opacity: 0.8; }
 .builder-controls label { display: block; margin-bottom: 10px; font-size: 0.9rem; }
 .builder-controls input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background-color: var(--bg-dark); color: white; margin-top: 5px; font-size: 1rem; }
 
-.workout-status-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+.workout-status-row { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 8px; }
 .badge {
     background-color: var(--surface-light);
     -webkit-backdrop-filter: blur(12px);
@@ -107,7 +108,7 @@ button:active { opacity: 0.8; }
 }
 .badge-side { font-size: 0.62rem; padding: 3px 7px; white-space: nowrap; flex-shrink: 0; margin-bottom: 8px; }
 .workout-main { text-align: center; margin-bottom: 15px; }
-.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 0; min-height: 100px; align-items: flex-end; flex: 1; }
+.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 0; min-height: 100px; align-items: flex-end; }
 .ninja-avatar { height: 100px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); transition: height 0.3s ease; }
 .ninja-avatar.large { height: 220px; }
 .status-text { color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
