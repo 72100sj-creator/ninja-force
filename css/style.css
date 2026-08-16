@@ -1,12 +1,12 @@
 :root {
-    --bg-dark: #e7e9ee;
-    --bg-glow: #f4f5f8;
+    --bg-dark: #d3d4d8;
+    --bg-glow: #e1e2e5;
     --surface: rgba(255, 255, 255, 0.65);
     --surface-light: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(15, 23, 42, 0.08);
     --text-main: #1b2a4a;
     --text-muted: #4c5b76;
-    --accent: #1f66a0;
+    --accent: #175f97;
     --accent-soft: rgba(31, 102, 160, 0.15);
     --danger: #c94a4a;
     --success: #1f7a5c;
