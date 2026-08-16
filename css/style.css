@@ -108,7 +108,7 @@ button:active { opacity: 0.8; }
 }
 .badge-side { font-size: 0.62rem; padding: 3px 7px; white-space: nowrap; flex-shrink: 0; }
 .workout-main { text-align: center; margin-bottom: 15px; }
-.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 10px; height: 220px; align-items: flex-end; }
+.ninja-avatar-wrap { display: flex; justify-content: center; margin-bottom: 10px; min-height: 100px; align-items: flex-start; }
 .ninja-avatar { height: 100px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); transition: height 0.3s ease; }
 .ninja-avatar.large { height: 220px; }
 .status-text { color: var(--accent); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
